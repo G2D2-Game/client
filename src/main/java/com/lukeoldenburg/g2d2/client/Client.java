@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -43,6 +45,14 @@ public class Client {
 		gameFrame.pack();
 		gameFrame.setLocationRelativeTo(null);
 		gameFrame.setVisible(true);
+
+		try {
+			ClientSocket socket = new ClientSocket(new URI("ws://localhost:8000"));
+			socket.connect();
+
+		} catch (URISyntaxException e) {
+			logger.error("", e);
+		}
 	}
 
 	private static void setLookAndFeel() {
