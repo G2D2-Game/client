@@ -3,7 +3,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 out/
-*.log
 
 ### IntelliJ IDEA ###
 .idea/
@@ -36,3 +35,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### G2D2 ###
+logs/
+*.log
+*.json
