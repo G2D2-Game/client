@@ -38,5 +38,6 @@ build/
 
 ### G2D2 ###
 logs/
+worlds/
 *.log
 *.json
