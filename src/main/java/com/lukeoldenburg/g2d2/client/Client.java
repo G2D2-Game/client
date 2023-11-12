@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +24,15 @@ public class Client {
 	private static List<Entity> entities = new ArrayList<>();
 	private static int myselfIndex;
 	private static JFrame gameFrame;
+	private static GamePanel gamePanel;
+
+	public static JFrame getGameFrame() {
+		return gameFrame;
+	}
+
+	public static GamePanel getGamePanel() {
+		return gamePanel;
+	}
 
 	public static void setMyselfIndex() {
 		entities.forEach(entity -> {
@@ -68,7 +76,7 @@ public class Client {
 		gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameFrame.setResizable(false);
 		gameFrame.setTitle("G2D2");
-		GamePanel gamePanel = new GamePanel();
+		gamePanel = new GamePanel();
 		gameFrame.add(gamePanel);
 		gameFrame.pack();
 		gameFrame.setLocationRelativeTo(null);
@@ -132,9 +140,10 @@ public class Client {
 		Runtime.getRuntime().addShutdownHook(new Thread(Client::shutdown));
 	}
 
-	public static void fireAction(String action, Point point) {
+	public static void fireAction(String action) {
 		switch (action) {
 			case "debug" -> {
+				gamePanel.debugContainer.visible = !gamePanel.debugContainer.visible;
 			}
 			case "settings" -> {
 			}

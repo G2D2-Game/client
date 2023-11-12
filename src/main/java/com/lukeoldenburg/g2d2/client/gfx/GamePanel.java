@@ -2,6 +2,9 @@ package com.lukeoldenburg.g2d2.client.gfx;
 
 import com.lukeoldenburg.g2d2.client.Client;
 import com.lukeoldenburg.g2d2.client.InputHandler;
+import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
+import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
+import com.lukeoldenburg.g2d2.client.gfx.ui.UI;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
@@ -12,14 +15,18 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
+	public UI ui = new UI();
+	public Container debugContainer = new Container(10, 10);
 	Thread renderThread;
 	InputHandler inputHandler = new InputHandler();
 	BufferedImage grassImage;
 	BufferedImage waterImage;
 
 	public GamePanel() {
+		// RESOLUTION
 		switch (Client.getConfig().get("resolution").getAsString()) {
 			// 720p (HD)
 			default -> ScreenUtil.initializeScreenData(this, 1280, 720);
@@ -33,6 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
 			case "7680x4320" -> ScreenUtil.initializeScreenData(this, 7680, 4320);
 		}
 
+		// TILE IMAGES
 		try {
 			grassImage = ImageUtil.getCompatibleImage(ImageUtil.getScaledImage(ImageIO.read(new File("grass.png"))));
 			waterImage = ImageUtil.getCompatibleImage(ImageUtil.getScaledImage(ImageIO.read(new File("water.png"))));
@@ -41,6 +49,20 @@ public class GamePanel extends JPanel implements Runnable {
 			throw new RuntimeException(e);
 		}
 
+		// UI
+		Font font;
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
+
+		} catch (FontFormatException | IOException | NullPointerException e) {
+			throw new RuntimeException(e);
+		}
+		debugContainer.children.add(new Text(debugContainer, "", font.deriveFont(30f), Color.white));
+		ui.children.add(debugContainer);
+		debugContainer.lockedWidth = true;
+		debugContainer.width = 635;
+
+		// PANEL
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
 		this.addKeyListener(inputHandler);
@@ -58,6 +80,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		Level level = Client.getLevel();
 		if (level != null && level.isLoaded()) {
 			Coordinate playerCoordinate = Client.getMyself().getCoordinate();
@@ -91,6 +114,25 @@ public class GamePanel extends JPanel implements Runnable {
 					g2.fillRect((int) entityPoint.getX(), (int) entityPoint.getY(), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
 				}
 			}
+
+			// UI
+			Text text = (Text) debugContainer.children.get(0);
+			text.setText("Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
+					+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
+					+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
+					+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
+					+ "Level Size: " + Client.getLevel().getSize() + "\n"
+					+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
+					+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
+					+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
+					+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
+					+ "Lower Bound: " + ScreenUtil.getLowerBound(Client.getMyself().getCoordinate()) + "\n"
+					+ "Player Point: " + ScreenUtil.getPlayerPoint(Client.getMyself().getCoordinate()) + "\n"
+					+ "Player Coordinate: " + Client.getMyself().getCoordinate() + "\n"
+					+ "Mouse Point: " + Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)) + "\n"
+					+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
+			debugContainer.children.set(0, text);
+			ui.draw(g2);
 		}
 
 		g2.dispose();
