@@ -7,8 +7,10 @@ import java.util.List;
 
 public class UI {
 	public List<UIElement> children = new ArrayList<>();
+	public boolean visible = true;
 
 	public void draw(Graphics2D g2) {
+		if (!visible) return;
 		children.forEach(uiElement -> {
 			if (uiElement.visible) uiElement.draw(g2);
 		});

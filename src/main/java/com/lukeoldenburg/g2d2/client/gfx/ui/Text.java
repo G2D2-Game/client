@@ -6,23 +6,6 @@ import java.awt.geom.Rectangle2D;
 
 public class Text extends UIElement {
 	private String text;
-
-	public Font getFont() {
-		return font;
-	}
-
-	public void setFont(Font font) {
-		this.font = font;
-	}
-
-	public Color getColor() {
-		return color;
-	}
-
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
 	private Font font;
 	private Color color;
 
@@ -39,6 +22,22 @@ public class Text extends UIElement {
 		this.parentElement = parentElement;
 		this.text = text;
 		this.font = font;
+		this.color = color;
+	}
+
+	public Font getFont() {
+		return font;
+	}
+
+	public void setFont(Font font) {
+		this.font = font;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
 		this.color = color;
 	}
 

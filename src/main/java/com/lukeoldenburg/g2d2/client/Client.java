@@ -178,9 +178,8 @@ public class Client {
 
 	public static void fireAction(String action) {
 		switch (action) {
-			case "debug" -> {
-				gamePanel.debugContainer.visible = !gamePanel.debugContainer.visible;
-			}
+			case "ui" -> gamePanel.ui.visible = !gamePanel.ui.visible;
+			case "debug" -> gamePanel.debugContainer.visible = !gamePanel.debugContainer.visible;
 			case "settings" -> {
 			}
 			case "inventory" -> {
