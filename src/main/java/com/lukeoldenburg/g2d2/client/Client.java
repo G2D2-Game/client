@@ -149,6 +149,7 @@ public class Client {
 		if (!config.has("steamId")) config.addProperty("steamId", System.nanoTime());
 		if (!config.has("keybinds")) config.add("keybinds", new JsonObject());
 		JsonObject keybinds = config.get("keybinds").getAsJsonObject();
+		if (!keybinds.has("K112")) keybinds.addProperty("K112", "ui");
 		if (!keybinds.has("K114")) keybinds.addProperty("K114", "debug");
 		if (!keybinds.has("K27")) keybinds.addProperty("K27", "settings");
 		if (!keybinds.has("K67")) keybinds.addProperty("K67", "inventory");
