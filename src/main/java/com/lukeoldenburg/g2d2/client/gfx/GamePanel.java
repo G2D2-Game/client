@@ -5,7 +5,6 @@ import com.lukeoldenburg.g2d2.client.InputHandler;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
 import com.lukeoldenburg.g2d2.client.gfx.ui.UI;
-import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
 
@@ -20,6 +19,7 @@ import java.util.Objects;
 public class GamePanel extends JPanel implements Runnable {
 	public UI ui = new UI();
 	public Container debugContainer = new Container(10, 10);
+	public Font font;
 	Thread renderThread;
 	InputHandler inputHandler = new InputHandler();
 	BufferedImage grassImage;
@@ -50,17 +50,36 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 
 		// UI
-		Font font;
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
 
 		} catch (FontFormatException | IOException | NullPointerException e) {
 			throw new RuntimeException(e);
 		}
-		debugContainer.children.add(new Text(debugContainer, "", font.deriveFont(30f), Color.white));
-		ui.children.add(debugContainer);
+
+		debugContainer.children.add(new Text(debugContainer, "", font.deriveFont(30f), Color.white) {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				setText("Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
+						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
+						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
+						+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
+						+ "Level Size: " + Client.getLevel().getSize() + "\n"
+						+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
+						+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Lower Bound: " + ScreenUtil.getLowerBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Player Point: " + ScreenUtil.getPlayerPoint(Client.getMyself().getCoordinate()) + "\n"
+						+ "Player Coordinate: " + Client.getMyself().getCoordinate() + "\n"
+						+ "Mouse Point: " + Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)) + "\n"
+						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
+			}
+		});
 		debugContainer.lockedWidth = true;
 		debugContainer.width = 635;
+		ui.children.add(debugContainer);
 
 		// PANEL
 		this.setBackground(Color.black);
@@ -100,38 +119,23 @@ public class GamePanel extends JPanel implements Runnable {
 				}
 			}
 
-			// PLAYER
-			g2.setColor(Color.white);
-			int offset = ScreenUtil.scaledTileSize / 2;
-			g2.fillRect((int) (playerPoint.getX() - offset), (int) (playerPoint.getY() - offset), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
-
 			// ENTITIES
-			for (Entity entity : Client.getEntities()) {
-				if (entity != Client.getMyself() && ScreenUtil.isInBounds(entity.getCoordinate(), playerCoordinate)) {
+			g2.setColor(Color.white);
+			Client.getEntities().forEach((entity -> {
+				if (ScreenUtil.isInBounds(entity.getCoordinate(), playerCoordinate)) {
 					Coordinate entityCoordinate = entity.getCoordinate();
 					Point entityPoint = ScreenUtil.coordinateToPoint(entityCoordinate, playerCoordinate);
-					g2.setColor(Color.red);
-					g2.fillRect((int) entityPoint.getX(), (int) entityPoint.getY(), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
+					if (entity == Client.getMyself()) {
+						g2.fillRect((int) entityPoint.getX() - ScreenUtil.scaledTileSize / 2, (int) entityPoint.getY() - ScreenUtil.scaledTileSize / 2, ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
+
+					} else {
+						g2.fillRect((int) entityPoint.getX(), (int) entityPoint.getY(), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
+					}
 				}
-			}
+			}));
 
 			// UI
-			Text text = (Text) debugContainer.children.get(0);
-			text.setText("Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
-					+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
-					+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
-					+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
-					+ "Level Size: " + Client.getLevel().getSize() + "\n"
-					+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
-					+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
-					+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
-					+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
-					+ "Lower Bound: " + ScreenUtil.getLowerBound(Client.getMyself().getCoordinate()) + "\n"
-					+ "Player Point: " + ScreenUtil.getPlayerPoint(Client.getMyself().getCoordinate()) + "\n"
-					+ "Player Coordinate: " + Client.getMyself().getCoordinate() + "\n"
-					+ "Mouse Point: " + Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)) + "\n"
-					+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
-			debugContainer.children.set(0, text);
+			ui.refresh(g2);
 			ui.draw(g2);
 		}
 

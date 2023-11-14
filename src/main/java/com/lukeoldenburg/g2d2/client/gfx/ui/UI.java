@@ -19,4 +19,8 @@ public class UI {
 			if (uiElement.visible && uiElement.contains(e)) uiElement.onClick(e);
 		});
 	}
+
+	public void refresh(Graphics2D g2) {
+		children.forEach(uiElement -> uiElement.refresh(g2));
+	}
 }

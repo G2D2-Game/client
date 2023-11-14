@@ -2,6 +2,8 @@ package com.lukeoldenburg.g2d2.client;
 
 import com.google.gson.JsonObject;
 import com.lukeoldenburg.g2d2.client.gfx.GamePanel;
+import com.lukeoldenburg.g2d2.client.gfx.ScreenUtil;
+import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
 import com.lukeoldenburg.g2d2.server.JsonUtil;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.entity.Player;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -84,8 +87,41 @@ public class Client {
 		LOGGER.info("Initialized window");
 
 		// TESTING
-		entities.add(new Player(new Coordinate(100, 100), 100, 0, "Player"));
+		entities.add(new Player(new Coordinate(100, 100), 100, System.nanoTime(), "Player"));
 		entities.add(new Player(new Coordinate(99, 99), 100, config.get("steamId").getAsLong(), config.get("name").getAsString()));
+		entities.forEach((entity) -> {
+			if (entity instanceof Player) {
+				Player player = (Player) entity;
+				gamePanel.ui.children.add(new Text(0, 0, null, player.getName(), gamePanel.font.deriveFont(40f), Color.white) {
+					long steamId = player.getSteamId();
+
+					@Override
+					public void refresh(Graphics2D g2) {
+						super.refresh(g2);
+						g2.setFont(getFont());
+						Client.getEntities().forEach((entity) -> {
+							if (((Player) entity).getSteamId() == steamId) {
+								Coordinate coordinate = entity.getCoordinate();
+								if (ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate())) {
+									visible = true;
+									x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
+									y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
+									x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
+									if (entity == Client.getMyself()) {
+										x -= ScreenUtil.scaledTileSize / 2;
+										y -= ScreenUtil.scaledTileSize / 2;
+									}
+
+								} else {
+									visible = false;
+								}
+							}
+						});
+					}
+				});
+			}
+		});
+
 		setMyselfIndex();
 		level = new Level("level.bin.gz", 200, System.nanoTime());
 		level.generateLevel();

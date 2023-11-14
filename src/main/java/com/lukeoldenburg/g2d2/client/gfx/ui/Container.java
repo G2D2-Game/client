@@ -50,10 +50,14 @@ public class Container extends UIElement {
 
 	@Override
 	public void onClick(MouseEvent e) {
-		System.out.println("Clicked container");
 		children.forEach(uiElement -> {
 			if (uiElement.visible && uiElement.contains(e)) uiElement.onClick(e);
 		});
+	}
+
+	@Override
+	public void refresh(Graphics2D g2) {
+		children.forEach(uiElement -> uiElement.refresh(g2));
 	}
 
 	@Override

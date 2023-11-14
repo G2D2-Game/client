@@ -15,6 +15,8 @@ public abstract class UIElement {
 
 	public abstract void onClick(MouseEvent e);
 
+	public abstract void refresh(Graphics2D g2);
+
 	public abstract int getWidth(Graphics2D g2);
 
 	public abstract int getHeight(Graphics2D g2);
@@ -24,6 +26,4 @@ public abstract class UIElement {
 		Graphics2D g2 = (Graphics2D) e.getComponent().getGraphics();
 		return point.getX() > x && point.getX() < x + getWidth(g2) && point.getY() > y && point.getY() < y + getHeight(g2);
 	}
-
-	;
 }

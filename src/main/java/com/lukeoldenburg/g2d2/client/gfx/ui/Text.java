@@ -6,8 +6,35 @@ import java.awt.geom.Rectangle2D;
 
 public class Text extends UIElement {
 	private String text;
+
+	public Font getFont() {
+		return font;
+	}
+
+	public void setFont(Font font) {
+		this.font = font;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
 	private Font font;
 	private Color color;
+
+	public Text(int x, int y, UIElement parentElement, String text, Font font, Color color) {
+		this.x = x;
+		this.y = y;
+		this.parentElement = parentElement;
+		this.text = text;
+		this.font = font;
+		this.color = color;
+	}
+
 	public Text(UIElement parentElement, String text, Font font, Color color) {
 		this.parentElement = parentElement;
 		this.text = text;
@@ -38,7 +65,10 @@ public class Text extends UIElement {
 
 	@Override
 	public void onClick(MouseEvent e) {
-		System.out.println("Clicked text");
+	}
+
+	@Override
+	public void refresh(Graphics2D g2) {
 	}
 
 	@Override
