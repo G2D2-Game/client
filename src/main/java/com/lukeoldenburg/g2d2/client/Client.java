@@ -177,7 +177,7 @@ public class Client {
 		Runtime.getRuntime().addShutdownHook(new Thread(Client::shutdown));
 	}
 
-	public static void fireAction(String action) {
+	public static void fireAction(String action, Point point) {
 		switch (action) {
 			case "ui" -> gamePanel.ui.visible = !gamePanel.ui.visible;
 			case "debug" -> gamePanel.debugContainer.visible = !gamePanel.debugContainer.visible;
