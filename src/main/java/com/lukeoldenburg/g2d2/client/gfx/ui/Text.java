@@ -9,17 +9,19 @@ public class Text extends UIElement {
 	private Font font;
 	private Color color;
 
-	public Text(int x, int y, UIElement parentElement, String text, Font font, Color color) {
+	public Text(UIElement parentElement, int x, int y, int renderPriority, String text, Font font, Color color) {
+		this.parentElement = parentElement;
 		this.x = x;
 		this.y = y;
-		this.parentElement = parentElement;
+		this.renderPriority = renderPriority;
 		this.text = text;
 		this.font = font;
 		this.color = color;
 	}
 
-	public Text(UIElement parentElement, String text, Font font, Color color) {
+	public Text(UIElement parentElement, int renderPriority, String text, Font font, Color color) {
 		this.parentElement = parentElement;
+		this.renderPriority = renderPriority;
 		this.text = text;
 		this.font = font;
 		this.color = color;

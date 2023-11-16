@@ -11,6 +11,11 @@ public class UI {
 
 	public void draw(Graphics2D g2) {
 		if (!visible) return;
+		children.sort((a, b) -> {
+			if (a.renderPriority < b.renderPriority) return 1;
+			if (a.renderPriority > b.renderPriority) return -1;
+			return 0;
+		});
 		children.forEach(uiElement -> {
 			if (uiElement.visible) uiElement.draw(g2);
 		});

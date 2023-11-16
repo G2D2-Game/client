@@ -9,22 +9,29 @@ public class Container extends UIElement {
 	public List<UIElement> children = new ArrayList<>();
 	public boolean lockedWidth, lockedHeight;
 
-	public Container(int x, int y) {
+	public Container(int x, int y, int renderPriority) {
 		this.x = x;
 		this.y = y;
+		this.renderPriority = renderPriority;
 	}
 
-	public Container(int x, int y, int width, int height) {
+	public Container(int x, int y, int width, int height, int renderPriority) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		lockedWidth = true;
 		lockedHeight = true;
+		this.renderPriority = renderPriority;
 	}
 
 	@Override
 	public void draw(Graphics2D g2) {
+		children.sort((a, b) -> {
+			if (a.renderPriority < b.renderPriority) return 1;
+			if (a.renderPriority > b.renderPriority) return -1;
+			return 0;
+		});
 		getWidth(g2);
 		getHeight(g2);
 		Color c = new Color(0, 0, 0, 210);

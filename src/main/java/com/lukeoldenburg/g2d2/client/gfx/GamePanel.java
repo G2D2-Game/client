@@ -18,7 +18,7 @@ import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
 	public UI ui = new UI();
-	public Container debugContainer = new Container(10, 10);
+	public Container debugContainer = new Container(10, 10, 0);
 	public Font font;
 	Thread renderThread;
 	InputHandler inputHandler = new InputHandler();
@@ -57,7 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
 			throw new RuntimeException(e);
 		}
 
-		debugContainer.children.add(new Text(debugContainer, "", font.deriveFont(30f), Color.white) {
+		debugContainer.children.add(new Text(debugContainer, 0, "", font.deriveFont(30f), Color.white) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);

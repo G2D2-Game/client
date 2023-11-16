@@ -92,7 +92,7 @@ public class Client {
 		entities.forEach((entity) -> {
 			if (entity instanceof Player) {
 				Player player = (Player) entity;
-				gamePanel.ui.children.add(new Text(0, 0, null, player.getName(), gamePanel.font.deriveFont(40f), Color.white) {
+				gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white) {
 					long steamId = player.getSteamId();
 
 					@Override

@@ -10,6 +10,7 @@ public abstract class UIElement {
 	public int width = 0;
 	public int height = 0;
 	public boolean visible = true;
+	public int renderPriority = 0;
 
 	public abstract void draw(Graphics2D g2);
 
