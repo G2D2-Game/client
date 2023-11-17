@@ -75,7 +75,7 @@ public class Container extends UIElement {
 				if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
 			}
 
-			width += 35;
+			width += 40;
 		}
 
 		return width;
@@ -89,7 +89,7 @@ public class Container extends UIElement {
 				if (uiElement.visible) height += uiElement.getHeight(g2) + 10;
 			}
 
-			height += 15;
+			height += 20;
 		}
 
 		return height;

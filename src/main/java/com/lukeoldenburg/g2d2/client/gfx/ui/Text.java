@@ -59,7 +59,7 @@ public class Text extends UIElement {
 		for (String line : text.split("\n")) {
 			int lineHeight = (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
 			g2.drawString(line, x, y + lineHeight / 2);
-			y += lineHeight + 10;
+			y += lineHeight;
 		}
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
@@ -89,7 +89,7 @@ public class Text extends UIElement {
 		this.height = 0;
 		for (String line : text.split("\n")) {
 			Rectangle2D bounds = g2.getFontMetrics().getStringBounds(line, g2);
-			this.height += (int) (bounds.getHeight() + 10);
+			this.height += (int) bounds.getHeight();
 		}
 		return height;
 	}
