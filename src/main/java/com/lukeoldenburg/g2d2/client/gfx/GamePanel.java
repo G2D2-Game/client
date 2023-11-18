@@ -5,6 +5,7 @@ import com.lukeoldenburg.g2d2.client.InputHandler;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
 import com.lukeoldenburg.g2d2.client.gfx.ui.UI;
+import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
 
@@ -57,7 +58,7 @@ public class GamePanel extends JPanel implements Runnable {
 			throw new RuntimeException(e);
 		}
 
-		debugContainer.children.add(new Text(debugContainer, 0, "", font.deriveFont(30f), Color.white) {
+		debugContainer.children.add(new Text(debugContainer, 0, "", font.deriveFont(30f), Color.white, false) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
@@ -97,47 +98,38 @@ public class GamePanel extends JPanel implements Runnable {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		Level level = Client.getLevel();
+		if (level == null || !level.isLoaded()) return;
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		Level level = Client.getLevel();
-		if (level != null && level.isLoaded()) {
-			Coordinate playerCoordinate = Client.getMyself().getCoordinate();
-			Point playerPoint = ScreenUtil.getPlayerPoint(playerCoordinate);
+		Coordinate playerCoordinate = Client.getMyself().getCoordinate();
 
-			// LEVEL
-			short[][] tiles = level.getBgTiles();
-			for (int x = ScreenUtil.getLeftBound(playerCoordinate); x < ScreenUtil.getRightBound(playerCoordinate); x++) {
-				for (int y = ScreenUtil.getUpperBound(playerCoordinate); y < ScreenUtil.getLowerBound(playerCoordinate); y++) {
-					Point tilePoint = ScreenUtil.coordinateToPoint(new Coordinate(x, y), playerCoordinate);
-					if (tiles[x][y] == 3) {
-						g2.drawImage(grassImage, (int) tilePoint.getX(), (int) tilePoint.getY(), null);
-
-					} else {
-						g2.drawImage(waterImage, (int) tilePoint.getX(), (int) tilePoint.getY(), null);
-					}
-				}
+		// LEVEL
+		short[][] tiles = level.getBgTiles();
+		for (int x = ScreenUtil.getLeftBound(playerCoordinate); x < ScreenUtil.getRightBound(playerCoordinate); x++) {
+			for (int y = ScreenUtil.getUpperBound(playerCoordinate); y < ScreenUtil.getLowerBound(playerCoordinate); y++) {
+				Point tilePoint = ScreenUtil.coordinateToPoint(new Coordinate(x, y), playerCoordinate);
+				if (tiles[x][y] == 3) g2.drawImage(grassImage, (int) tilePoint.getX(), (int) tilePoint.getY(), null);
+				else g2.drawImage(waterImage, (int) tilePoint.getX(), (int) tilePoint.getY(), null);
 			}
-
-			// ENTITIES
-			g2.setColor(Color.white);
-			Client.getEntities().forEach((entity -> {
-				if (ScreenUtil.isInBounds(entity.getCoordinate(), playerCoordinate)) {
-					Coordinate entityCoordinate = entity.getCoordinate();
-					Point entityPoint = ScreenUtil.coordinateToPoint(entityCoordinate, playerCoordinate);
-					if (entity == Client.getMyself()) {
-						g2.fillRect((int) entityPoint.getX() - ScreenUtil.scaledTileSize / 2, (int) entityPoint.getY() - ScreenUtil.scaledTileSize / 2, ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
-
-					} else {
-						g2.fillRect((int) entityPoint.getX(), (int) entityPoint.getY(), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
-					}
-				}
-			}));
-
-			// UI
-			ui.refresh(g2);
-			ui.draw(g2);
 		}
+
+		// ENTITIES
+		g2.setColor(Color.white);
+		for (Entity entity : Client.getEntities()) {
+			if (!ScreenUtil.isInBounds(entity.getCoordinate(), playerCoordinate)) continue;
+			Coordinate entityCoordinate = entity.getCoordinate();
+			Point entityPoint = ScreenUtil.coordinateToPoint(entityCoordinate, playerCoordinate);
+			if (entity == Client.getMyself())
+				g2.fillRect((int) entityPoint.getX() - ScreenUtil.scaledTileSize / 2, (int) entityPoint.getY() - ScreenUtil.scaledTileSize / 2, ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
+			else
+				g2.fillRect((int) entityPoint.getX(), (int) entityPoint.getY(), ScreenUtil.scaledTileSize, ScreenUtil.scaledTileSize);
+		}
+
+		// UI
+		ui.refresh(g2);
+		ui.draw(g2);
 
 		g2.dispose();
 	}
@@ -161,9 +153,7 @@ public class GamePanel extends JPanel implements Runnable {
 				delta--;
 			}
 
-			if (timer >= 1000000000) {
-				timer = 0;
-			}
+			if (timer >= 1000000000) timer = 0;
 		}
 	}
 }

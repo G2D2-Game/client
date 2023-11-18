@@ -38,13 +38,11 @@ public class Client {
 	}
 
 	public static void setMyselfIndex() {
-		entities.forEach(entity -> {
-			if (entity instanceof Player) {
-				if (((Player) entity).getSteamId() == config.get("steamId").getAsLong()) {
+		for (Entity entity : entities) {
+			if (entity instanceof Player)
+				if (((Player) entity).getSteamId() == config.get("steamId").getAsLong())
 					Client.myselfIndex = entities.indexOf(entity);
-				}
-			}
-		});
+		}
 	}
 
 	public static JsonObject getConfig() {
@@ -89,38 +87,38 @@ public class Client {
 		// TESTING
 		entities.add(new Player(new Coordinate(100, 100), 100, System.nanoTime(), "Player"));
 		entities.add(new Player(new Coordinate(99, 99), 100, config.get("steamId").getAsLong(), config.get("name").getAsString()));
-		entities.forEach((entity) -> {
+		for (Entity entity : entities) {
 			if (entity instanceof Player) {
 				Player player = (Player) entity;
-				gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white) {
+				gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
 					long steamId = player.getSteamId();
 
 					@Override
 					public void refresh(Graphics2D g2) {
 						super.refresh(g2);
 						g2.setFont(getFont());
-						Client.getEntities().forEach((entity) -> {
-							if (((Player) entity).getSteamId() == steamId) {
-								Coordinate coordinate = entity.getCoordinate();
-								if (ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate())) {
-									visible = true;
-									x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
-									y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
-									x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
-									if (entity == Client.getMyself()) {
-										x -= ScreenUtil.scaledTileSize / 2;
-										y -= ScreenUtil.scaledTileSize / 2;
-									}
+						for (Entity entity : Client.getEntities()) {
+							Coordinate coordinate = entity.getCoordinate();
+							if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) {
+								visible = false;
+								continue;
 
-								} else {
-									visible = false;
-								}
+							} else {
+								visible = true;
 							}
-						});
+
+							if (!(((Player) entity).getSteamId() == steamId)) continue;
+							x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
+							y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
+							x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
+							if (!(entity == Client.getMyself())) continue;
+							x -= ScreenUtil.scaledTileSize / 2;
+							y -= ScreenUtil.scaledTileSize / 2;
+						}
 					}
 				});
 			}
-		});
+		}
 
 		setMyselfIndex();
 		level = new Level("level.bin.gz", 200, System.nanoTime());

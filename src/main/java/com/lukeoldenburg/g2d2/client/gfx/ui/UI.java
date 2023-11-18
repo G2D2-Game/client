@@ -16,18 +16,18 @@ public class UI {
 			if (a.renderPriority > b.renderPriority) return -1;
 			return 0;
 		});
-		children.forEach(uiElement -> {
+
+		for (UIElement uiElement : children)
 			if (uiElement.visible) uiElement.draw(g2);
-		});
 	}
 
 	public void onClick(MouseEvent e) {
-		children.forEach(uiElement -> {
+		for (UIElement uiElement : children)
 			if (uiElement.visible && uiElement.contains(e)) uiElement.onClick(e);
-		});
 	}
 
 	public void refresh(Graphics2D g2) {
-		children.forEach(uiElement -> uiElement.refresh(g2));
+		for (UIElement uiElement : children)
+			if (uiElement.visible) uiElement.refresh(g2);
 	}
 }

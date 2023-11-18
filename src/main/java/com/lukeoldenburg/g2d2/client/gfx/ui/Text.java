@@ -8,8 +8,9 @@ public class Text extends UIElement {
 	private String text;
 	private Font font;
 	private Color color;
+	private boolean underlined;
 
-	public Text(UIElement parentElement, int x, int y, int renderPriority, String text, Font font, Color color) {
+	public Text(UIElement parentElement, int x, int y, int renderPriority, String text, Font font, Color color, boolean underlined) {
 		this.parentElement = parentElement;
 		this.x = x;
 		this.y = y;
@@ -17,14 +18,16 @@ public class Text extends UIElement {
 		this.text = text;
 		this.font = font;
 		this.color = color;
+		this.underlined = underlined;
 	}
 
-	public Text(UIElement parentElement, int renderPriority, String text, Font font, Color color) {
+	public Text(UIElement parentElement, int renderPriority, String text, Font font, Color color, boolean underlined) {
 		this.parentElement = parentElement;
 		this.renderPriority = renderPriority;
 		this.text = text;
 		this.font = font;
 		this.color = color;
+		this.underlined = underlined;
 	}
 
 	public Font getFont() {
@@ -57,10 +60,16 @@ public class Text extends UIElement {
 		g2.setFont(font);
 		g2.setColor(color);
 		for (String line : text.split("\n")) {
-			int lineHeight = (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
-			g2.drawString(line, x, y + lineHeight / 2);
-			y += lineHeight;
+			Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(line, g2);
+			g2.drawString(line, x, (int) (y + stringBounds.getHeight() / 2));
+			if (underlined) {
+				g2.setStroke(new BasicStroke(2));
+				g2.drawLine(x, (int) (y + stringBounds.getHeight() / 2 + 3), (int) (x + stringBounds.getWidth()), (int) (y + stringBounds.getHeight() / 2 + 3));
+			}
+
+			y += stringBounds.getHeight();
 		}
+
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 
@@ -76,10 +85,9 @@ public class Text extends UIElement {
 	public int getWidth(Graphics2D g2) {
 		g2.setFont(font);
 		this.width = 0;
-		for (String line : text.split("\n")) {
-			Rectangle2D bounds = g2.getFontMetrics().getStringBounds(line, g2);
-			this.width = Math.max(this.width, (int) bounds.getWidth());
-		}
+		for (String line : text.split("\n"))
+			this.width = Math.max(this.width, (int) g2.getFontMetrics().getStringBounds(line, g2).getWidth());
+
 		return width;
 	}
 
@@ -87,10 +95,9 @@ public class Text extends UIElement {
 	public int getHeight(Graphics2D g2) {
 		g2.setFont(font);
 		this.height = 0;
-		for (String line : text.split("\n")) {
-			Rectangle2D bounds = g2.getFontMetrics().getStringBounds(line, g2);
-			this.height += (int) bounds.getHeight();
-		}
+		for (String line : text.split("\n"))
+			this.height += (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
+
 		return height;
 	}
 }

@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Container extends UIElement {
-	public List<UIElement> children = new ArrayList<>();
-	public boolean lockedWidth, lockedHeight;
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 210);
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
+	public List<UIElement> children = new ArrayList<>();
+	public boolean lockedWidth, lockedHeight = false;
 
 	public Container(int x, int y, int renderPriority) {
 		this.x = x;
@@ -22,9 +22,10 @@ public class Container extends UIElement {
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.renderPriority = renderPriority;
+
 		lockedWidth = true;
 		lockedHeight = true;
-		this.renderPriority = renderPriority;
 	}
 
 	@Override
@@ -39,25 +40,24 @@ public class Container extends UIElement {
 		int currentX = x + 20;
 		int currentY = y + 20;
 		for (UIElement uiElement : children) {
-			if (uiElement.visible) {
-				uiElement.x = currentX;
-				uiElement.y = currentY;
-				uiElement.draw(g2);
-				currentY += uiElement.getHeight(g2) + 10;
-			}
+			if (!uiElement.visible) continue;
+			uiElement.x = currentX;
+			uiElement.y = currentY;
+			uiElement.draw(g2);
+			currentY += uiElement.getHeight(g2) + 10;
 		}
 	}
 
 	@Override
 	public void onClick(MouseEvent e) {
-		children.forEach(uiElement -> {
+		for (UIElement uiElement : children)
 			if (uiElement.visible && uiElement.contains(e)) uiElement.onClick(e);
-		});
 	}
 
 	@Override
 	public void refresh(Graphics2D g2) {
-		children.forEach(uiElement -> uiElement.refresh(g2));
+		for (UIElement uiElement : children)
+			if (uiElement.visible) uiElement.refresh(g2);
 
 		children.sort((a, b) -> {
 			if (a.renderPriority < b.renderPriority) return 1;
@@ -71,29 +71,23 @@ public class Container extends UIElement {
 
 	@Override
 	public int getWidth(Graphics2D g2) {
-		if (!lockedWidth) {
-			width = 0;
-			for (UIElement uiElement : children) {
-				if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
-			}
+		if (lockedWidth) return width;
+		width = 0;
+		for (UIElement uiElement : children)
+			if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
 
-			width += 40;
-		}
-
+		width += 40;
 		return width;
 	}
 
 	@Override
 	public int getHeight(Graphics2D g2) {
-		if (!lockedHeight) {
-			height = 0;
-			for (UIElement uiElement : children) {
-				if (uiElement.visible) height += uiElement.getHeight(g2) + 10;
-			}
+		if (lockedHeight) return height;
+		height = 0;
+		for (UIElement uiElement : children)
+			if (uiElement.visible) height += uiElement.getHeight(g2) + 10;
 
-			height += 20;
-		}
-
+		height += 20;
 		return height;
 	}
 }
