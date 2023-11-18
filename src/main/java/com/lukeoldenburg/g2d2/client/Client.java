@@ -5,6 +5,7 @@ import com.lukeoldenburg.g2d2.client.gfx.GamePanel;
 import com.lukeoldenburg.g2d2.client.gfx.ScreenUtil;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
 import com.lukeoldenburg.g2d2.server.JsonUtil;
+import com.lukeoldenburg.g2d2.server.Server;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.entity.Player;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
@@ -66,9 +67,11 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
+		Server.setupLogger();
 		LOGGER.info("Loading...");
 		registerHooks();
 		loadConfig();
+
 		if (config.get("opengl").getAsBoolean()) System.setProperty("sun.java2d.opengl", "True");
 		else System.setProperty("sun.java2d.opengl", "False");
 
@@ -83,38 +86,38 @@ public class Client {
 		gameFrame.setLocationRelativeTo(null);
 		gameFrame.setVisible(true);
 		LOGGER.info("Initialized window");
+		LOGGER.debug("whoa a debug message works");
 
 		// TESTING
 		entities.add(new Player(new Coordinate(100, 100), 100, System.nanoTime(), "Player"));
 		entities.add(new Player(new Coordinate(99, 99), 100, config.get("steamId").getAsLong(), config.get("name").getAsString()));
 		for (Entity entity : entities) {
-			if (entity instanceof Player) {
-				Player player = (Player) entity;
-				gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
-					long steamId = player.getSteamId();
+			if (!(entity instanceof Player)) continue;
+			Player player = (Player) entity;
+			gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
+				long steamId = player.getSteamId();
 
-					@Override
-					public void refresh(Graphics2D g2) {
-						super.refresh(g2);
-						g2.setFont(getFont());
-						for (Entity entity : Client.getEntities()) {
-							Coordinate coordinate = entity.getCoordinate();
+				@Override
+				public void refresh(Graphics2D g2) {
+					super.refresh(g2);
+					g2.setFont(getFont());
+					for (Entity entity : Client.getEntities()) {
+						Coordinate coordinate = entity.getCoordinate();
 
-							if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) visible = false;
-							else visible = true;
-							if (!(((Player) entity).getSteamId() == steamId)) continue;
+						if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) visible = false;
+						else visible = true;
+						if (!(((Player) entity).getSteamId() == steamId)) continue;
 
-							x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
-							y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
-							x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
+						x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
+						y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
+						x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
 
-							if (!(entity == Client.getMyself())) continue;
-							x -= ScreenUtil.scaledTileSize / 2;
-							y -= ScreenUtil.scaledTileSize / 2;
-						}
+						if (!(entity == Client.getMyself())) continue;
+						x -= ScreenUtil.scaledTileSize / 2;
+						y -= ScreenUtil.scaledTileSize / 2;
 					}
-				});
-			}
+				}
+			});
 		}
 
 		setMyselfIndex();
