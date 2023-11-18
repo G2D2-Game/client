@@ -99,18 +99,15 @@ public class Client {
 						g2.setFont(getFont());
 						for (Entity entity : Client.getEntities()) {
 							Coordinate coordinate = entity.getCoordinate();
-							if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) {
-								visible = false;
-								continue;
 
-							} else {
-								visible = true;
-							}
-
+							if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) visible = false;
+							else visible = true;
 							if (!(((Player) entity).getSteamId() == steamId)) continue;
+
 							x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
 							y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
 							x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
+
 							if (!(entity == Client.getMyself())) continue;
 							x -= ScreenUtil.scaledTileSize / 2;
 							y -= ScreenUtil.scaledTileSize / 2;

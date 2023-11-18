@@ -57,7 +57,7 @@ public class Container extends UIElement {
 	@Override
 	public void refresh(Graphics2D g2) {
 		for (UIElement uiElement : children)
-			if (uiElement.visible) uiElement.refresh(g2);
+			uiElement.refresh(g2);
 
 		children.sort((a, b) -> {
 			if (a.renderPriority < b.renderPriority) return 1;
