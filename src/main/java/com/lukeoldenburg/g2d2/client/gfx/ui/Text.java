@@ -79,7 +79,6 @@ public class Text extends UIElement {
 
 	@Override
 	public void onHover(Graphics2D g2, Point point) {
-		System.out.println("Hovering over text");
 	}
 
 	@Override
