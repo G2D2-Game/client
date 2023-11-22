@@ -30,9 +30,8 @@ public class InputHandler implements KeyListener, MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) Client.getGamePanel().ui.onClick(e);
-		else
-			Client.fireAction(Objects.requireNonNullElse(Client.getConfig().get("keybinds").getAsJsonObject().get("M" + e.getButton()), new JsonPrimitive("")).getAsString(), e.getPoint());
+		Client.getGamePanel().ui.onClick(e);
+		Client.fireAction(Objects.requireNonNullElse(Client.getConfig().get("keybinds").getAsJsonObject().get("M" + e.getButton()), new JsonPrimitive("")).getAsString(), e.getPoint());
 	}
 
 	@Override

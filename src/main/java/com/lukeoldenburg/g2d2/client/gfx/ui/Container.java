@@ -2,13 +2,10 @@ package com.lukeoldenburg.g2d2.client.gfx.ui;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Container extends UIElement {
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 210);
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
-	public List<UIElement> children = new ArrayList<>();
 	public boolean lockedWidth, lockedHeight = false;
 
 	public Container(int x, int y, int renderPriority) {
@@ -37,21 +34,21 @@ public class Container extends UIElement {
 		g2.setStroke(new BasicStroke(5));
 		g2.drawRoundRect(x + 5, y + 5, width - 10, height - 10, 25, 25);
 
-		int currentX = x + 20;
-		int currentY = y + 20;
-		for (UIElement uiElement : children) {
-			if (!uiElement.visible) continue;
-			uiElement.x = currentX;
-			uiElement.y = currentY;
-			uiElement.draw(g2);
-			currentY += uiElement.getHeight(g2) + 10;
-		}
+		for (UIElement uiElement : children)
+			if (uiElement.visible) uiElement.draw(g2);
 	}
 
 	@Override
 	public void onClick(MouseEvent e) {
 		for (UIElement uiElement : children)
-			if (uiElement.visible && uiElement.contains(e)) uiElement.onClick(e);
+			if (uiElement.visible && uiElement.contains((Graphics2D) e.getComponent().getGraphics(), e.getPoint()))
+				uiElement.onClick(e);
+	}
+
+	@Override
+	public void onHover(Graphics2D g2, Point point) {
+		for (UIElement uiElement : children)
+			if (uiElement.visible && uiElement.contains(g2, point)) uiElement.onHover(g2, point);
 	}
 
 	@Override
@@ -64,6 +61,15 @@ public class Container extends UIElement {
 			if (a.renderPriority > b.renderPriority) return -1;
 			return 0;
 		});
+
+		int currentX = x + 20;
+		int currentY = y + 20;
+		for (UIElement uiElement : children) {
+			if (!uiElement.visible) continue;
+			uiElement.x = currentX;
+			uiElement.y = currentY;
+			currentY += uiElement.getHeight(g2) + 10;
+		}
 
 		getWidth(g2);
 		getHeight(g2);

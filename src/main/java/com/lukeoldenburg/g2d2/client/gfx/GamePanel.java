@@ -5,6 +5,7 @@ import com.lukeoldenburg.g2d2.client.InputHandler;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
 import com.lukeoldenburg.g2d2.client.gfx.ui.UI;
+import com.lukeoldenburg.g2d2.client.gfx.ui.UIElement;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
@@ -129,6 +130,9 @@ public class GamePanel extends JPanel implements Runnable {
 
 		// UI
 		ui.refresh(g2);
+		for (UIElement uiElement : ui.children)
+			if (getMousePosition() != null && uiElement.visible && uiElement.contains(g2, getMousePosition()))
+				uiElement.onHover(g2, getMousePosition());
 		ui.draw(g2);
 
 		g2.dispose();
