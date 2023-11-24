@@ -11,6 +11,7 @@ public class Text extends UIElement {
 	private boolean underlined;
 
 	public Text(UIElement parentElement, int x, int y, int renderPriority, String text, Font font, Color color, boolean underlined) {
+		super();
 		this.parentElement = parentElement;
 		this.x = x;
 		this.y = y;
@@ -22,6 +23,7 @@ public class Text extends UIElement {
 	}
 
 	public Text(UIElement parentElement, int renderPriority, String text, Font font, Color color, boolean underlined) {
+		super();
 		this.parentElement = parentElement;
 		this.renderPriority = renderPriority;
 		this.text = text;

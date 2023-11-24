@@ -9,18 +9,19 @@ public class Container extends UIElement {
 	public boolean lockedWidth, lockedHeight = false;
 
 	public Container(int x, int y, int renderPriority) {
+		super();
 		this.x = x;
 		this.y = y;
 		this.renderPriority = renderPriority;
 	}
 
 	public Container(int x, int y, int width, int height, int renderPriority) {
+		super();
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.renderPriority = renderPriority;
-
 		lockedWidth = true;
 		lockedHeight = true;
 	}

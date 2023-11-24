@@ -4,6 +4,10 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class UI extends UIElement {
+	public UI() {
+		super();
+	}
+
 	@Override
 	public void draw(Graphics2D g2) {
 		if (!visible) return;
