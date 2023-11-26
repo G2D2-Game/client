@@ -11,8 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Check out client repository
+        uses: actions/checkout@v3
+        with:
+          repository: G2D2-Game/client
+          path: client
+
+      - name: Check out server repository
+        uses: actions/checkout@v3
+        with:
+          repository: G2D2-Game/server
+          path: server
+
       - name: Set up JDK 17 and restore server cache
         uses: actions/setup-java@v3
         with:
@@ -20,12 +30,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and cache server with Maven
-        run: |
-          git clone https://github.com/G2D2-Game/server server
-          cd server
-          mvn -B package --file pom.xml
-
+      - name: Build server with Maven
+        run: mvn -B package --file server/pom.xml
 
       - name: Build client with Maven
         run: mvn -B package --file client/pom.xml
