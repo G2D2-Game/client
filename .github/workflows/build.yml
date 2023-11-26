@@ -24,6 +24,7 @@ jobs:
           repository: G2D2-Game/server
           path: server
           ref: main
+          token: ${{ github.token }}
 
       - name: Set up JDK 17 and restore server cache
         uses: actions/setup-java@v3
