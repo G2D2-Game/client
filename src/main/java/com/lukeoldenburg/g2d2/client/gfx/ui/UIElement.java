@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class UIElement {
-	protected ArrayList<UIElement> children = new ArrayList<>();
+	protected final ArrayList<UIElement> children = new ArrayList<>();
 	protected String id;
 	protected UIElement parentElement;
 	protected int renderPriority = 0;
@@ -45,7 +45,7 @@ public class UIElement {
 	}
 
 	public void onHover(Graphics2D g2, Point point) {
-		UI.hoveredElements.add(this);
+		UI.getHoveredElements().add(this);
 		for (UIElement uiElement : children)
 			if (uiElement.visible && uiElement.contains(g2, point)) uiElement.onHover(g2, point);
 	}
@@ -66,11 +66,7 @@ public class UIElement {
 
 	public void addChild(UIElement child) {
 		children.add(child);
-		children.sort((a, b) -> {
-			if (a.renderPriority < b.renderPriority) return 1;
-			if (a.renderPriority > b.renderPriority) return -1;
-			return 0;
-		});
+		children.sort((a, b) -> Integer.compare(b.renderPriority, a.renderPriority));
 	}
 
 	public ArrayList<UIElement> getChildren() {

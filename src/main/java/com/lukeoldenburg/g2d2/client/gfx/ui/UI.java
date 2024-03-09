@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class UI extends UIElement {
-	public static ArrayList<UIElement> hoveredElements = new ArrayList<>();
+	private static final ArrayList<UIElement> hoveredElements = new ArrayList<>();
 
 	public UI() {
 		super();
@@ -48,5 +48,9 @@ public class UI extends UIElement {
 		for (UIElement uiElement : children)
 			if (uiElement.contains(g2, point)) return true;
 		return false;
+	}
+
+	public static ArrayList<UIElement> getHoveredElements() {
+		return hoveredElements;
 	}
 }

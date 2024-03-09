@@ -30,7 +30,7 @@ public class Text extends UIElement {
 				g2.drawLine(x, (int) (y + stringBounds.getHeight() / 2 + 3), (int) (x + stringBounds.getWidth()), (int) (y + stringBounds.getHeight() / 2 + 3));
 			}
 
-			y += stringBounds.getHeight();
+			y += (int) stringBounds.getHeight();
 		}
 
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

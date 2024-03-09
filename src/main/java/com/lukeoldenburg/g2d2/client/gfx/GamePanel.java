@@ -9,6 +9,8 @@ import com.lukeoldenburg.g2d2.client.gfx.ui.UIElement;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -16,23 +18,22 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GamePanel.class);
 	public static Font font = null;
 	static {
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
 
 		} catch (FontFormatException | IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to load font", e);
 		}
 	}
 
 	private final UI ui = new UI();
 	private Thread renderThread;
-	private final InputHandler inputHandler = new InputHandler();
 	private BufferedImage grassImage;
 	private BufferedImage waterImage;
 
@@ -57,7 +58,7 @@ public class GamePanel extends JPanel implements Runnable {
 			waterImage = ImageUtil.getCompatibleImage(ImageUtil.getScaledImage(ImageIO.read(new File("water.png"))));
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to load tile images", e);
 		}
 
 		// DEBUG INFO
@@ -94,23 +95,23 @@ public class GamePanel extends JPanel implements Runnable {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
-				String text = "HOVERED ELEMENTS\n";
-				for (UIElement element : UI.hoveredElements) {
-					text += "Element: " + element.getId() + "\n";
-					if (parentElement != null) text += "Parent Element: " + element.getParentElement().getId() + "\n";
-					else text += "Parent Element: null\n";
-					text += "Render Priority: " + element.getRenderPriority() + "\n";
-					text += "Point: java.awt.Point[x=" + element.getX() + "," + element.getY() + "]\n";
-					text += "Dimensions: " + element.getWidth(g2) + "x" + element.getHeight(g2) + "\n";
-					String children = "Children: [";
+				StringBuilder text = new StringBuilder("HOVERED ELEMENTS\n");
+				for (UIElement element : UI.getHoveredElements()) {
+					text.append("Element: ").append(element.getId()).append("\n");
+					if (parentElement != null) text.append("Parent Element: ").append(element.getParentElement().getId()).append("\n");
+					else text.append("Parent Element: null\n");
+					text.append("Render Priority: ").append(element.getRenderPriority()).append("\n");
+					text.append("Point: java.awt.Point[x=").append(element.getX()).append(",").append(element.getY()).append("]\n");
+					text.append("Dimensions: ").append(element.getWidth(g2)).append("x").append(element.getHeight(g2)).append("\n");
+					StringBuilder children = new StringBuilder("Children: [");
 					for (UIElement child : element.getChildren()) {
-						children += child.getId() + ", ";
+						children.append(child.getId()).append(", ");
 					}
-					children = children.substring(0, children.length() - 2);
-					if (element.getChildren().size() > 0) text += children + "]\n\n";
-					else text += "Children: []\n\n";
+					children = new StringBuilder(children.substring(0, children.length() - 2));
+					if (!element.getChildren().isEmpty()) text.append(children).append("]\n\n");
+					else text.append("Children: []\n\n");
 				}
-				setText(text);
+				setText(text.toString());
 			}
 		});
 		ui.addChild(debugContainer);
@@ -118,6 +119,7 @@ public class GamePanel extends JPanel implements Runnable {
 		// PANEL
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
+		InputHandler inputHandler = new InputHandler();
 		this.addKeyListener(inputHandler);
 		this.addMouseListener(inputHandler);
 		this.setFocusable(true);
@@ -156,7 +158,7 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 
 		// UI
-		UI.hoveredElements = new ArrayList<>();
+		UI.getHoveredElements().clear();
 		for (UIElement uiElement : ui.getChildren())
 			if (getMousePosition() != null && uiElement.isVisible() && uiElement.contains(g2, getMousePosition()))
 				uiElement.onHover(g2, getMousePosition());
