@@ -20,13 +20,21 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
-	public UI ui = new UI();
-	public Container debugContainer = new Container("debug_container", ui, 0, 10, 10);
-	public Font font;
-	Thread renderThread;
-	InputHandler inputHandler = new InputHandler();
-	BufferedImage grassImage;
-	BufferedImage waterImage;
+	public static Font font = null;
+	static {
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
+
+		} catch (FontFormatException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private final UI ui = new UI();
+	private Thread renderThread;
+	private final InputHandler inputHandler = new InputHandler();
+	private BufferedImage grassImage;
+	private BufferedImage waterImage;
 
 	public GamePanel() {
 		// RESOLUTION
@@ -49,19 +57,18 @@ public class GamePanel extends JPanel implements Runnable {
 			waterImage = ImageUtil.getCompatibleImage(ImageUtil.getScaledImage(ImageIO.read(new File("water.png"))));
 
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 
-		// UI
-		try {
-			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
-
-		} catch (FontFormatException | IOException | NullPointerException e) {
-			throw new RuntimeException(e);
-		}
-
-
-		debugContainer.addChild(new Text("debug_text", debugContainer, 0, 0, 0, "", font.deriveFont(30f), Color.white, false) {
+		// DEBUG INFO
+		Container debugContainer = new Container("debug_container", ui, 0, 10, 10) {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				visible = Client.isDebugMode();
+			}
+		};
+		debugContainer.addChild(new Text("debug_text", debugContainer, 0, 0, 0) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
@@ -83,24 +90,24 @@ public class GamePanel extends JPanel implements Runnable {
 						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
 			}
 		});
-		debugContainer.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0, "", font.deriveFont(30f), Color.white, false) {
+		debugContainer.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
 				String text = "HOVERED ELEMENTS\n";
 				for (UIElement element : UI.hoveredElements) {
-					text += "Element: " + element.id + "\n";
-					if (parentElement != null) text += "Parent Element: " + element.parentElement.id + "\n";
+					text += "Element: " + element.getId() + "\n";
+					if (parentElement != null) text += "Parent Element: " + element.getParentElement().getId() + "\n";
 					else text += "Parent Element: null\n";
-					text += "Render Priority: " + element.renderPriority + "\n";
-					text += "Point: java.awt.Point[x=" + element.x + "," + element.y + "]\n";
-					text += "Dimensions: " + element.width + "x" + element.height + "\n";
+					text += "Render Priority: " + element.getRenderPriority() + "\n";
+					text += "Point: java.awt.Point[x=" + element.getX() + "," + element.getY() + "]\n";
+					text += "Dimensions: " + element.getWidth(g2) + "x" + element.getHeight(g2) + "\n";
 					String children = "Children: [";
-					for (UIElement child : element.children) {
-						children += child.id + ", ";
+					for (UIElement child : element.getChildren()) {
+						children += child.getId() + ", ";
 					}
 					children = children.substring(0, children.length() - 2);
-					if (element.children.size() > 0) text += children + "]\n\n";
+					if (element.getChildren().size() > 0) text += children + "]\n\n";
 					else text += "Children: []\n\n";
 				}
 				setText(text);
@@ -115,11 +122,6 @@ public class GamePanel extends JPanel implements Runnable {
 		this.addMouseListener(inputHandler);
 		this.setFocusable(true);
 		startRenderThread();
-	}
-
-	public void startRenderThread() {
-		renderThread = new Thread(this);
-		renderThread.start();
 	}
 
 	@Override
@@ -155,8 +157,8 @@ public class GamePanel extends JPanel implements Runnable {
 
 		// UI
 		UI.hoveredElements = new ArrayList<>();
-		for (UIElement uiElement : ui.children)
-			if (getMousePosition() != null && uiElement.visible && uiElement.contains(g2, getMousePosition()))
+		for (UIElement uiElement : ui.getChildren())
+			if (getMousePosition() != null && uiElement.isVisible() && uiElement.contains(g2, getMousePosition()))
 				uiElement.onHover(g2, getMousePosition());
 		ui.refresh(g2);
 		ui.draw(g2);
@@ -185,5 +187,14 @@ public class GamePanel extends JPanel implements Runnable {
 
 			if (timer >= 1000000000) timer = 0;
 		}
+	}
+
+	public void startRenderThread() {
+		renderThread = new Thread(this);
+		renderThread.start();
+	}
+
+	public UI getUi() {
+		return ui;
 	}
 }

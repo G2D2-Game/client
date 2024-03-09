@@ -25,20 +25,12 @@ public class ScreenUtil {
 		return leftBound;
 	}
 
-	private static int getUncorrectedLeftBound(Coordinate playerCoordinate) {
-		return Math.max((int) (playerCoordinate.getX() - (COLS / 2) - 1), 0);
-	}
-
 	public static int getRightBound(Coordinate playerCoordinate) {
 		Point playerPoint = coordinateToPoint(playerCoordinate, playerCoordinate);
 		int rightBound = getUncorrectedRightBound(playerCoordinate);
 		if (playerPoint.getX() < centerWidth)
 			rightBound += (int) ((centerWidth - playerPoint.getX()) / scaledTileSize);
 		return rightBound;
-	}
-
-	private static int getUncorrectedRightBound(Coordinate playerCoordinate) {
-		return Math.min((int) (playerCoordinate.getX() + (COLS / 2) + 1), Client.getLevel().getSize());
 	}
 
 	public static int getUpperBound(Coordinate playerCoordinate) {
@@ -49,10 +41,6 @@ public class ScreenUtil {
 		return upperBound;
 	}
 
-	private static int getUncorrectedUpperBound(Coordinate playerCoordinate) {
-		return Math.max((int) (playerCoordinate.getY() - (ROWS / 2) - 2), 0);
-	}
-
 	public static int getLowerBound(Coordinate playerCoordinate) {
 		Point playerPoint = coordinateToPoint(playerCoordinate, playerCoordinate);
 		int lowerBound = getUncorrectedLowerBound(playerCoordinate);
@@ -61,8 +49,19 @@ public class ScreenUtil {
 		return lowerBound;
 	}
 
-	private static int getUncorrectedLowerBound(Coordinate playerCoordinate) {
-		return Math.min((int) (playerCoordinate.getY() + (ROWS / 2) + 2), Client.getLevel().getSize());
+	public static boolean isInBounds(Coordinate coordinate, Coordinate playerCoordinate) {
+		return coordinate.getX() >= getLeftBound(playerCoordinate) && coordinate.getX() <= getRightBound(playerCoordinate) && coordinate.getY() >= getUpperBound(playerCoordinate) && coordinate.getY() <= getLowerBound(playerCoordinate);
+	}
+
+	public static Point coordinateToPoint(Coordinate coordinate, Coordinate playerCoordinate) {
+		Point playerPoint = getPlayerPoint(playerCoordinate);
+		return new Point((int) (playerPoint.getX() + ((coordinate.getX() - playerCoordinate.getX()) * scaledTileSize)), (int) (playerPoint.getY() + ((coordinate.getY() - playerCoordinate.getY()) * scaledTileSize)));
+	}
+
+	public static Coordinate pointToCoordinate(Point point, Coordinate playerCoordinate) {
+		Point playerPoint = getPlayerPoint(playerCoordinate);
+		return new Coordinate((double) Math.round(playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize) * 1000d) / 1000d,
+				(double) Math.round(playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize) * 1000d) / 1000d);
 	}
 
 	public static Point getPlayerPoint(Coordinate playerCoordinate) {
@@ -95,19 +94,20 @@ public class ScreenUtil {
 		return new Point(playerScreenX, playerScreenY);
 	}
 
-	public static boolean isInBounds(Coordinate coordinate, Coordinate playerCoordinate) {
-		return coordinate.getX() >= getLeftBound(playerCoordinate) && coordinate.getX() <= getRightBound(playerCoordinate) && coordinate.getY() >= getUpperBound(playerCoordinate) && coordinate.getY() <= getLowerBound(playerCoordinate);
+	private static int getUncorrectedLeftBound(Coordinate playerCoordinate) {
+		return Math.max((int) (playerCoordinate.getX() - (COLS / 2) - 1), 0);
 	}
 
-	public static Point coordinateToPoint(Coordinate coordinate, Coordinate playerCoordinate) {
-		Point playerPoint = getPlayerPoint(playerCoordinate);
-		return new Point((int) (playerPoint.getX() + ((coordinate.getX() - playerCoordinate.getX()) * scaledTileSize)), (int) (playerPoint.getY() + ((coordinate.getY() - playerCoordinate.getY()) * scaledTileSize)));
+	private static int getUncorrectedRightBound(Coordinate playerCoordinate) {
+		return Math.min((int) (playerCoordinate.getX() + (COLS / 2) + 1), Client.getLevel().getSize());
 	}
 
-	public static Coordinate pointToCoordinate(Point point, Coordinate playerCoordinate) {
-		Point playerPoint = getPlayerPoint(playerCoordinate);
-		return new Coordinate((double) Math.round(playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize) * 1000d) / 1000d,
-				(double) Math.round(playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize) * 1000d) / 1000d);
+	private static int getUncorrectedUpperBound(Coordinate playerCoordinate) {
+		return Math.max((int) (playerCoordinate.getY() - (ROWS / 2) - 2), 0);
+	}
+
+	private static int getUncorrectedLowerBound(Coordinate playerCoordinate) {
+		return Math.min((int) (playerCoordinate.getY() + (ROWS / 2) + 2), Client.getLevel().getSize());
 	}
 
 	public static void initializeScreenData(GamePanel gp, int width, int height) {

@@ -6,16 +6,16 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public abstract class UIElement {
-	public ArrayList<UIElement> children = new ArrayList<>();
-	public String id;
-	public UIElement parentElement;
-	public int renderPriority = 0;
-	public int x = 0;
-	public int y = 0;
-	public int width = 0;
-	public int height = 0;
-	public boolean visible = true;
+public class UIElement {
+	protected ArrayList<UIElement> children = new ArrayList<>();
+	protected String id;
+	protected UIElement parentElement;
+	protected int renderPriority = 0;
+	protected int x = 0;
+	protected int y = 0;
+	protected int width = 0;
+	protected int height = 0;
+	protected boolean visible = true;
 
 	public UIElement(String id, UIElement parentElement, int renderPriority, int x, int y) {
 		this.id = id;
@@ -30,15 +30,13 @@ public abstract class UIElement {
 
 	public void draw(Graphics2D g2) {
 		g2.setStroke(new BasicStroke(1));
-		if (Client.getGamePanel().debugContainer.visible) {
+		if (Client.isDebugMode()) {
 			g2.drawLine(x, y, x + width, y);
 			g2.drawLine(x, y, x, y + height);
 			g2.drawLine(x, y + height, x + width, y + height);
 			g2.drawLine(x + width, y, x + width, y + height);
 		}
 	}
-
-	;
 
 	public void onClick(MouseEvent e) {
 		for (UIElement uiElement : children)
@@ -57,10 +55,6 @@ public abstract class UIElement {
 			uiElement.refresh(g2);
 	}
 
-	public abstract int getWidth(Graphics2D g2);
-
-	public abstract int getHeight(Graphics2D g2);
-
 	public boolean contains(Graphics2D g2, Point point) {
 		try {
 			return point.getX() > x && point.getX() < x + getWidth(g2) && point.getY() > y && point.getY() < y + getHeight(g2);
@@ -77,5 +71,45 @@ public abstract class UIElement {
 			if (a.renderPriority > b.renderPriority) return -1;
 			return 0;
 		});
+	}
+
+	public ArrayList<UIElement> getChildren() {
+		return children;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public UIElement getParentElement() {
+		return parentElement;
+	}
+
+	public int getRenderPriority() {
+		return renderPriority;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public int getWidth(Graphics2D g2) {
+		return width;
+	}
+
+	public int getHeight(Graphics2D g2) {
+		return height;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 }

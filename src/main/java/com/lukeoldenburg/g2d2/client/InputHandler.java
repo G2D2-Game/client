@@ -30,7 +30,7 @@ public class InputHandler implements KeyListener, MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		Client.getGamePanel().ui.onClick(e);
+		Client.getGamePanel().getUi().onClick(e);
 		Client.fireAction(Objects.requireNonNullElse(Client.getConfig().get("keybinds").getAsJsonObject().get("M" + e.getButton()), new JsonPrimitive("")).getAsString(), e.getPoint());
 	}
 

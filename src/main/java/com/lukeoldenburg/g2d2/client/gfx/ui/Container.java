@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 public class Container extends UIElement {
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 210);
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
+	private boolean lockedWidth, lockedHeight;
 
 	public Container(String id, UIElement parentElement, int renderPriority, int x, int y) {
 		super(id, parentElement, renderPriority, x, y);
@@ -38,11 +39,7 @@ public class Container extends UIElement {
 	@Override
 	public void refresh(Graphics2D g2) {
 		super.refresh(g2);
-		children.sort((a, b) -> {
-			if (a.renderPriority < b.renderPriority) return 1;
-			if (a.renderPriority > b.renderPriority) return -1;
-			return 0;
-		});
+		children.sort((a, b) -> Integer.compare(b.renderPriority, a.renderPriority));
 
 		int currentX = x + 20;
 		int currentY = y + 20;
@@ -60,6 +57,7 @@ public class Container extends UIElement {
 
 	@Override
 	public int getWidth(Graphics2D g2) {
+		if (lockedWidth) return width;
 		width = 0;
 		for (UIElement uiElement : children)
 			if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
@@ -70,11 +68,30 @@ public class Container extends UIElement {
 
 	@Override
 	public int getHeight(Graphics2D g2) {
+		if (lockedHeight) return height;
 		height = 0;
 		for (UIElement uiElement : children)
 			if (uiElement.visible) height += uiElement.getHeight(g2) + 10;
 
 		height += 20;
 		return height;
+	}
+
+	public void lockWidth(int width) {
+		lockedWidth = true;
+		this.width = width;
+	}
+
+	public void unlockWidth() {
+		lockedWidth = false;
+	}
+
+	public void lockHeight(int height) {
+		lockedHeight = true;
+		this.height = height;
+	}
+
+	public void unlockHeight() {
+		lockedHeight = false;
 	}
 }

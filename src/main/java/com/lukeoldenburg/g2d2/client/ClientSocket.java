@@ -22,20 +22,20 @@ public class ClientSocket extends WebSocketClient {
 	}
 
 	@Override
+	public void onMessage(String message) {
+	}
+
+	@Override
 	public void onClose(int code, String reason, boolean remote) {
 		LOGGER.info("Closed with exit code " + code + " because " + reason);
 	}
 
 	@Override
-	public void onMessage(String message) {
+	public void onError(Exception ex) {
+		LOGGER.error("A websocket error occurred: ", ex);
 	}
 
 	@Override
 	public void onMessage(ByteBuffer message) {
-	}
-
-	@Override
-	public void onError(Exception ex) {
-		LOGGER.error("A websocket error occurred: ", ex);
 	}
 }

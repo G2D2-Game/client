@@ -24,48 +24,13 @@ public class Client {
 	public static final String VERSION = "1.0.0-alpha.1";
 	private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 	private static JsonObject config;
-	private static Level level;
-	private static ClientSocket socket;
-	private static List<Entity> entities = new ArrayList<>();
-	private static int myselfIndex;
 	private static JFrame gameFrame;
 	private static GamePanel gamePanel;
-
-	public static JFrame getGameFrame() {
-		return gameFrame;
-	}
-
-	public static GamePanel getGamePanel() {
-		return gamePanel;
-	}
-
-	public static void setMyselfIndex() {
-		for (Entity entity : entities) {
-			if (entity instanceof Player)
-				if (((Player) entity).getSteamId() == config.get("steamId").getAsLong())
-					Client.myselfIndex = entities.indexOf(entity);
-		}
-	}
-
-	public static JsonObject getConfig() {
-		return config;
-	}
-
-	public static ClientSocket getSocket() {
-		return socket;
-	}
-
-	public static Level getLevel() {
-		return level;
-	}
-
-	public static List<Entity> getEntities() {
-		return entities;
-	}
-
-	public static void setEntities(List<Entity> entities) {
-		Client.entities = entities;
-	}
+	private static boolean debugMode = true;
+	private static ClientSocket socket;
+	private static Level level;
+	private static final List<Entity> entities = new ArrayList<>();
+	private static int myselfIndex;
 
 	public static void main(String[] args) {
 		Server.setupLogger();
@@ -87,38 +52,13 @@ public class Client {
 		gameFrame.setLocationRelativeTo(null);
 		gameFrame.setVisible(true);
 		LOGGER.info("Initialized window");
-		LOGGER.debug("whoa a debug message works");
 
 		// TESTING
 		entities.add(new Player(new Coordinate(100, 100), 100, System.nanoTime(), "Player"));
 		entities.add(new Player(new Coordinate(99, 99), 100, config.get("steamId").getAsLong(), config.get("name").getAsString()));
 		for (Entity entity : entities) {
 			if (!(entity instanceof Player)) continue;
-			Player player = (Player) entity;
-			gamePanel.ui.addChild(new Text("nametag_" + player.getName(), getGamePanel().ui, 1, 0, 0, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
-				long steamId = player.getSteamId();
-
-				@Override
-				public void refresh(Graphics2D g2) {
-					super.refresh(g2);
-					g2.setFont(getFont());
-					for (Entity entity : Client.getEntities()) {
-						Coordinate coordinate = entity.getCoordinate();
-
-						if (!(ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate()))) visible = false;
-						else visible = true;
-						if (!(((Player) entity).getSteamId() == steamId)) continue;
-
-						x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
-						y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
-						x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
-
-						if (!(entity == Client.getMyself())) continue;
-						x -= ScreenUtil.scaledTileSize / 2;
-						y -= ScreenUtil.scaledTileSize / 2;
-					}
-				}
-			});
+			generateNameTag((Player) entity);
 		}
 
 		setMyselfIndex();
@@ -136,6 +76,17 @@ public class Client {
 //		} catch (URISyntaxException e) {
 //			LOGGER.error("Failed to connect to server", e);
 //		}
+	}
+
+	private static void registerHooks() {
+		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> LOGGER.error("There was an uncaught exception in thread {}", thread.getName(), throwable));
+		Runtime.getRuntime().addShutdownHook(new Thread(Client::shutdown));
+	}
+
+	private static void shutdown() {
+		LOGGER.info("Saving...");
+		JsonUtil.writeJsonFile("config.json", config);
+		LogManager.shutdown();
 	}
 
 	private static void loadConfig() {
@@ -162,24 +113,10 @@ public class Client {
 		if (!keybinds.has("K68")) keybinds.addProperty("K68", "right");
 	}
 
-	private static void setLookAndFeel() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-		} catch (Exception e) {
-			LOGGER.error("Failed to set look and feel", e);
-		}
-	}
-
-	private static void registerHooks() {
-		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> LOGGER.error("There was an uncaught exception in thread {}", thread.getName(), throwable));
-		Runtime.getRuntime().addShutdownHook(new Thread(Client::shutdown));
-	}
-
 	public static void fireAction(String action, Point point) {
 		switch (action) {
-			case "ui" -> gamePanel.ui.visible = !gamePanel.ui.visible;
-			case "debug" -> gamePanel.debugContainer.visible = !gamePanel.debugContainer.visible;
+			case "ui" -> gamePanel.getUi().setVisible(!gamePanel.getUi().isVisible());
+			case "debug" -> debugMode = !debugMode;
 			case "settings" -> {
 			}
 			case "inventory" -> {
@@ -199,13 +136,77 @@ public class Client {
 		}
 	}
 
-	public static Player getMyself() {
-		return (Player) entities.get(myselfIndex);
+	private static void generateNameTag(Player player) {
+		Text nameTag = new Text("nametag_" + player.getName(), getGamePanel().getUi(), 1, 0, 0) {
+			final long steamId = player.getSteamId();
+
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				g2.setFont(getFont());
+				for (Entity entity : Client.getEntities()) {
+					Coordinate coordinate = entity.getCoordinate();
+
+					visible = ScreenUtil.isInBounds(coordinate, Client.getMyself().getCoordinate());
+					if (!(((Player) entity).getSteamId() == steamId)) continue;
+
+					x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
+					y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
+					x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
+
+					if (!(entity == Client.getMyself())) continue;
+					x -= ScreenUtil.scaledTileSize / 2;
+					y -= ScreenUtil.scaledTileSize / 2;
+				}
+			}
+		};
+		nameTag.setText(player.getName());
+		nameTag.setFont(GamePanel.font.deriveFont(40f));
+		gamePanel.getUi().addChild(nameTag);
 	}
 
-	private static void shutdown() {
-		LOGGER.info("Saving...");
-		JsonUtil.writeJsonFile("config.json", config);
-		LogManager.shutdown();
+	private static void setLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+		} catch (Exception e) {
+			LOGGER.error("Failed to set look and feel", e);
+		}
+	}
+
+	public static JsonObject getConfig() {
+		return config;
+	}
+
+	public static JFrame getGameFrame() {
+		return gameFrame;
+	}
+
+	public static GamePanel getGamePanel() {
+		return gamePanel;
+	}
+
+	public static boolean isDebugMode() {
+		return debugMode;
+	}
+
+	public static Level getLevel() {
+		return level;
+	}
+
+	public static List<Entity> getEntities() {
+		return entities;
+	}
+
+	public static void setMyselfIndex() {
+		for (Entity entity : entities) {
+			if (entity instanceof Player)
+				if (((Player) entity).getSteamId() == config.get("steamId").getAsLong())
+					Client.myselfIndex = entities.indexOf(entity);
+		}
+	}
+
+	public static Player getMyself() {
+		return (Player) entities.get(myselfIndex);
 	}
 }

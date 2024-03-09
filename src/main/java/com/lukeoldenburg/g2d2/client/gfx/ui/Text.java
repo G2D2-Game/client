@@ -1,48 +1,20 @@
 package com.lukeoldenburg.g2d2.client.gfx.ui;
 
+import com.lukeoldenburg.g2d2.client.gfx.GamePanel;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 public class Text extends UIElement {
-	private String text;
-	private Font font;
-	private Color color;
-	private boolean underlined;
+	private String text = "";
+	private Font font = GamePanel.font.deriveFont(30f);
+	private Color color = Color.white;
+	private boolean underlined = false;
 
-	// TODO have classes use setters instead of constructors
-	public Text(String id, UIElement parentElement, int renderPriority, int x, int y, String text, Font font, Color color, boolean underlined) {
+	public Text(String id, UIElement parentElement, int renderPriority, int x, int y) {
 		super(id, parentElement, renderPriority, x, y);
-		this.text = text;
-		this.font = font;
-		this.color = color;
-		this.underlined = underlined;
 	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public Font getFont() {
-		return font;
-	}
-
-	public void setFont(Font font) {
-		this.font = font;
-	}
-
-	public Color getColor() {
-		return color;
-	}
-
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
 
 	@Override
 	public void draw(Graphics2D g2) {
@@ -109,5 +81,37 @@ public class Text extends UIElement {
 		} catch (NullPointerException e) {
 			return false;
 		}
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public Font getFont() {
+		return font;
+	}
+
+	public void setFont(Font font) {
+		this.font = font;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public boolean isUnderlined() {
+		return underlined;
+	}
+
+	public void setUnderlined(boolean underlined) {
+		this.underlined = underlined;
 	}
 }
