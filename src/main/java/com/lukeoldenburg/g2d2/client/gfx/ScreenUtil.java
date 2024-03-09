@@ -3,6 +3,7 @@ package com.lukeoldenburg.g2d2.client.gfx;
 import com.lukeoldenburg.g2d2.client.Client;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class ScreenUtil {
@@ -105,12 +106,18 @@ public class ScreenUtil {
 
 	public static Coordinate pointToCoordinate(Point point, Coordinate playerCoordinate) {
 		Point playerPoint = getPlayerPoint(playerCoordinate);
-		return new Coordinate(playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize), playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize));
+		return new Coordinate((double) Math.round(playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize) * 1000d) / 1000d,
+				(double) Math.round(playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize) * 1000d) / 1000d);
 	}
 
 	public static void initializeScreenData(GamePanel gp, int width, int height) {
 		DisplayMode dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-		if (width < dm.getWidth() && height < dm.getHeight()) {
+		if (width == dm.getWidth() && height == dm.getHeight()) {
+			Client.getGameFrame().setExtendedState(JFrame.MAXIMIZED_BOTH);
+			Client.getGameFrame().setUndecorated(true);
+		}
+
+		if (width <= dm.getWidth() && height <= dm.getHeight()) {
 			ScreenUtil.width = width;
 			centerWidth = width / 2;
 			ScreenUtil.height = height;

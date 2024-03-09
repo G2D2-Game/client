@@ -6,24 +6,9 @@ import java.awt.event.MouseEvent;
 public class Container extends UIElement {
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 210);
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
-	public boolean lockedWidth, lockedHeight = false;
 
-	public Container(int x, int y, int renderPriority) {
-		super();
-		this.x = x;
-		this.y = y;
-		this.renderPriority = renderPriority;
-	}
-
-	public Container(int x, int y, int width, int height, int renderPriority) {
-		super();
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.renderPriority = renderPriority;
-		lockedWidth = true;
-		lockedHeight = true;
+	public Container(String id, UIElement parentElement, int renderPriority, int x, int y) {
+		super(id, parentElement, renderPriority, x, y);
 	}
 
 	@Override
@@ -37,26 +22,22 @@ public class Container extends UIElement {
 
 		for (UIElement uiElement : children)
 			if (uiElement.visible) uiElement.draw(g2);
+		super.draw(g2);
 	}
 
 	@Override
 	public void onClick(MouseEvent e) {
-		for (UIElement uiElement : children)
-			if (uiElement.visible && uiElement.contains((Graphics2D) e.getComponent().getGraphics(), e.getPoint()))
-				uiElement.onClick(e);
+		super.onClick(e);
 	}
 
 	@Override
 	public void onHover(Graphics2D g2, Point point) {
-		for (UIElement uiElement : children)
-			if (uiElement.visible && uiElement.contains(g2, point)) uiElement.onHover(g2, point);
+		super.onHover(g2, point);
 	}
 
 	@Override
 	public void refresh(Graphics2D g2) {
-		for (UIElement uiElement : children)
-			uiElement.refresh(g2);
-
+		super.refresh(g2);
 		children.sort((a, b) -> {
 			if (a.renderPriority < b.renderPriority) return 1;
 			if (a.renderPriority > b.renderPriority) return -1;
@@ -69,6 +50,7 @@ public class Container extends UIElement {
 			if (!uiElement.visible) continue;
 			uiElement.x = currentX;
 			uiElement.y = currentY;
+
 			currentY += uiElement.getHeight(g2) + 10;
 		}
 
@@ -78,7 +60,6 @@ public class Container extends UIElement {
 
 	@Override
 	public int getWidth(Graphics2D g2) {
-		if (lockedWidth) return width;
 		width = 0;
 		for (UIElement uiElement : children)
 			if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
@@ -89,7 +70,6 @@ public class Container extends UIElement {
 
 	@Override
 	public int getHeight(Graphics2D g2) {
-		if (lockedHeight) return height;
 		height = 0;
 		for (UIElement uiElement : children)
 			if (uiElement.visible) height += uiElement.getHeight(g2) + 10;

@@ -16,11 +16,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
 	public UI ui = new UI();
-	public Container debugContainer = new Container(10, 10, 0);
+	public Container debugContainer = new Container("debug_container", ui, 0, 10, 10);
 	public Font font;
 	Thread renderThread;
 	InputHandler inputHandler = new InputHandler();
@@ -59,16 +60,19 @@ public class GamePanel extends JPanel implements Runnable {
 			throw new RuntimeException(e);
 		}
 
-		debugContainer.children.add(new Text(debugContainer, 0, "", font.deriveFont(30f), Color.white, false) {
+
+		debugContainer.addChild(new Text("debug_text", debugContainer, 0, 0, 0, "", font.deriveFont(30f), Color.white, false) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
-				setText("Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
-						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
-						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
+				setText("DEBUG INFO\n"
+						+ "Version: " + Client.VERSION + "\n"
 						+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
-						+ "Level Size: " + Client.getLevel().getSize() + "\n"
+						+ "Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
+						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
+						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
 						+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
+						+ "Level Size: " + Client.getLevel().getSize() + "\n"
 						+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
 						+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
 						+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
@@ -79,9 +83,30 @@ public class GamePanel extends JPanel implements Runnable {
 						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
 			}
 		});
-		debugContainer.lockedWidth = true;
-		debugContainer.width = 635;
-		ui.children.add(debugContainer);
+		debugContainer.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0, "", font.deriveFont(30f), Color.white, false) {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				String text = "HOVERED ELEMENTS\n";
+				for (UIElement element : UI.hoveredElements) {
+					text += "Element: " + element.id + "\n";
+					if (parentElement != null) text += "Parent Element: " + element.parentElement.id + "\n";
+					else text += "Parent Element: null\n";
+					text += "Render Priority: " + element.renderPriority + "\n";
+					text += "Point: java.awt.Point[x=" + element.x + "," + element.y + "]\n";
+					text += "Dimensions: " + element.width + "x" + element.height + "\n";
+					String children = "Children: [";
+					for (UIElement child : element.children) {
+						children += child.id + ", ";
+					}
+					children = children.substring(0, children.length() - 2);
+					if (element.children.size() > 0) text += children + "]\n\n";
+					else text += "Children: []\n\n";
+				}
+				setText(text);
+			}
+		});
+		ui.addChild(debugContainer);
 
 		// PANEL
 		this.setBackground(Color.black);
@@ -129,10 +154,11 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 
 		// UI
-		ui.refresh(g2);
+		UI.hoveredElements = new ArrayList<>();
 		for (UIElement uiElement : ui.children)
 			if (getMousePosition() != null && uiElement.visible && uiElement.contains(g2, getMousePosition()))
 				uiElement.onHover(g2, getMousePosition());
+		ui.refresh(g2);
 		ui.draw(g2);
 
 		g2.dispose();

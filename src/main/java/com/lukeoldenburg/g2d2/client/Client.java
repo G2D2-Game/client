@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Client {
+	public static final String VERSION = "1.0.0-alpha.1";
 	private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 	private static JsonObject config;
 	private static Level level;
@@ -94,7 +95,7 @@ public class Client {
 		for (Entity entity : entities) {
 			if (!(entity instanceof Player)) continue;
 			Player player = (Player) entity;
-			gamePanel.ui.children.add(new Text(null, 0, 0, 1, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
+			gamePanel.ui.addChild(new Text("nametag_" + player.getName(), getGamePanel().ui, 1, 0, 0, player.getName(), gamePanel.font.deriveFont(40f), Color.white, false) {
 				long steamId = player.getSteamId();
 
 				@Override

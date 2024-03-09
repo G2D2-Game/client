@@ -10,26 +10,21 @@ public class Text extends UIElement {
 	private Color color;
 	private boolean underlined;
 
-	public Text(UIElement parentElement, int x, int y, int renderPriority, String text, Font font, Color color, boolean underlined) {
-		super();
-		this.parentElement = parentElement;
-		this.x = x;
-		this.y = y;
-		this.renderPriority = renderPriority;
+	// TODO have classes use setters instead of constructors
+	public Text(String id, UIElement parentElement, int renderPriority, int x, int y, String text, Font font, Color color, boolean underlined) {
+		super(id, parentElement, renderPriority, x, y);
 		this.text = text;
 		this.font = font;
 		this.color = color;
 		this.underlined = underlined;
 	}
 
-	public Text(UIElement parentElement, int renderPriority, String text, Font font, Color color, boolean underlined) {
-		super();
-		this.parentElement = parentElement;
-		this.renderPriority = renderPriority;
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
 		this.text = text;
-		this.font = font;
-		this.color = color;
-		this.underlined = underlined;
 	}
 
 	public Font getFont() {
@@ -48,16 +43,10 @@ public class Text extends UIElement {
 		this.color = color;
 	}
 
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
 
 	@Override
 	public void draw(Graphics2D g2) {
+		super.draw(g2);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		g2.setFont(font);
 		g2.setColor(color);
@@ -77,14 +66,17 @@ public class Text extends UIElement {
 
 	@Override
 	public void onClick(MouseEvent e) {
+		super.onClick(e);
 	}
 
 	@Override
 	public void onHover(Graphics2D g2, Point point) {
+		super.onHover(g2, point);
 	}
 
 	@Override
 	public void refresh(Graphics2D g2) {
+		super.refresh(g2);
 		getWidth(g2);
 		getHeight(g2);
 	}
@@ -107,5 +99,15 @@ public class Text extends UIElement {
 			this.height += (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
 
 		return height;
+	}
+
+	@Override
+	public boolean contains(Graphics2D g2, Point point) {
+		try {
+			return point.getX() > x && point.getX() < x + getWidth(g2) && point.getY() < y && point.getY() > y - getHeight(g2);
+
+		} catch (NullPointerException e) {
+			return false;
+		}
 	}
 }
