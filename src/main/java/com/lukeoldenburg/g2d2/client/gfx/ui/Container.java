@@ -1,7 +1,6 @@
 package com.lukeoldenburg.g2d2.client.gfx.ui;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 public class Container extends UIElement {
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 210);
@@ -24,16 +23,6 @@ public class Container extends UIElement {
 		for (UIElement uiElement : children)
 			if (uiElement.visible) uiElement.draw(g2);
 		super.draw(g2);
-	}
-
-	@Override
-	public void onClick(MouseEvent e) {
-		super.onClick(e);
-	}
-
-	@Override
-	public void onHover(Graphics2D g2, Point point) {
-		super.onHover(g2, point);
 	}
 
 	@Override

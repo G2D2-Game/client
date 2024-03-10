@@ -23,6 +23,7 @@ import java.util.Objects;
 public class GamePanel extends JPanel implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GamePanel.class);
 	public static Font font = null;
+
 	static {
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(UI.class.getResourceAsStream("/font/HelvetiPixel.ttf")));
@@ -98,10 +99,11 @@ public class GamePanel extends JPanel implements Runnable {
 				StringBuilder text = new StringBuilder("HOVERED ELEMENTS\n");
 				for (UIElement element : UI.getHoveredElements()) {
 					text.append("Element: ").append(element.getId()).append("\n");
-					if (parentElement != null) text.append("Parent Element: ").append(element.getParentElement().getId()).append("\n");
+					if (parentElement != null)
+						text.append("Parent Element: ").append(element.getParentElement().getId()).append("\n");
 					else text.append("Parent Element: null\n");
 					text.append("Render Priority: ").append(element.getRenderPriority()).append("\n");
-					text.append("Point: java.awt.Point[x=").append(element.getX()).append(",").append(element.getY()).append("]\n");
+					text.append("Point: java.awt.Point[x=").append(element.getX()).append(",y=").append(element.getY()).append("]\n");
 					text.append("Dimensions: ").append(element.getWidth(g2)).append("x").append(element.getHeight(g2)).append("\n");
 					StringBuilder children = new StringBuilder("Children: [");
 					for (UIElement child : element.getChildren()) {

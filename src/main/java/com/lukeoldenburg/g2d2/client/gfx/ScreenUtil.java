@@ -60,8 +60,7 @@ public class ScreenUtil {
 
 	public static Coordinate pointToCoordinate(Point point, Coordinate playerCoordinate) {
 		Point playerPoint = getPlayerPoint(playerCoordinate);
-		return new Coordinate((double) Math.round(playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize) * 1000d) / 1000d,
-				(double) Math.round(playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize) * 1000d) / 1000d);
+		return new Coordinate(Double.parseDouble(String.format("%.3f", playerCoordinate.getX() + ((point.getX() - playerPoint.getX()) / scaledTileSize))), Double.parseDouble(String.format("%.3f", playerCoordinate.getY() + ((point.getY() - playerPoint.getY()) / scaledTileSize))));
 	}
 
 	public static Point getPlayerPoint(Coordinate playerCoordinate) {

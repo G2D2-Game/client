@@ -3,7 +3,6 @@ package com.lukeoldenburg.g2d2.client.gfx.ui;
 import com.lukeoldenburg.g2d2.client.gfx.GamePanel;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 public class Text extends UIElement {
@@ -22,28 +21,20 @@ public class Text extends UIElement {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		g2.setFont(font);
 		g2.setColor(color);
+		int tempX = x;
+		int tempY = y;
 		for (String line : text.split("\n")) {
 			Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(line, g2);
-			g2.drawString(line, x, (int) (y + stringBounds.getHeight() / 2));
+			g2.drawString(line, tempX, (int) (tempY + stringBounds.getHeight() / 2));
 			if (underlined) {
 				g2.setStroke(new BasicStroke(2));
-				g2.drawLine(x, (int) (y + stringBounds.getHeight() / 2 + 3), (int) (x + stringBounds.getWidth()), (int) (y + stringBounds.getHeight() / 2 + 3));
+				g2.drawLine(tempX, (int) (tempY + stringBounds.getHeight() / 2 + 3), (int) (tempX + stringBounds.getWidth()), (int) (tempY + stringBounds.getHeight() / 2 + 3));
 			}
 
-			y += (int) stringBounds.getHeight();
+			tempY += (int) stringBounds.getHeight();
 		}
 
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	}
-
-	@Override
-	public void onClick(MouseEvent e) {
-		super.onClick(e);
-	}
-
-	@Override
-	public void onHover(Graphics2D g2, Point point) {
-		super.onHover(g2, point);
 	}
 
 	@Override
@@ -71,16 +62,6 @@ public class Text extends UIElement {
 			this.height += (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
 
 		return height;
-	}
-
-	@Override
-	public boolean contains(Graphics2D g2, Point point) {
-		try {
-			return point.getX() > x && point.getX() < x + getWidth(g2) && point.getY() < y && point.getY() > y - getHeight(g2);
-
-		} catch (NullPointerException e) {
-			return false;
-		}
 	}
 
 	public String getText() {

@@ -11,6 +11,10 @@ public class UI extends UIElement {
 		super();
 	}
 
+	public static ArrayList<UIElement> getHoveredElements() {
+		return hoveredElements;
+	}
+
 	@Override
 	public void draw(Graphics2D g2) {
 		if (!visible) return;
@@ -34,6 +38,13 @@ public class UI extends UIElement {
 	}
 
 	@Override
+	public boolean contains(Graphics2D g2, Point point) {
+		for (UIElement uiElement : children)
+			if (uiElement.contains(g2, point)) return true;
+		return false;
+	}
+
+	@Override
 	public int getWidth(Graphics2D g2) {
 		return 0;
 	}
@@ -41,16 +52,5 @@ public class UI extends UIElement {
 	@Override
 	public int getHeight(Graphics2D g2) {
 		return 0;
-	}
-
-	@Override
-	public boolean contains(Graphics2D g2, Point point) {
-		for (UIElement uiElement : children)
-			if (uiElement.contains(g2, point)) return true;
-		return false;
-	}
-
-	public static ArrayList<UIElement> getHoveredElements() {
-		return hoveredElements;
 	}
 }
