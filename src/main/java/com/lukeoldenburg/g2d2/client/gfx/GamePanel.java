@@ -2,10 +2,9 @@ package com.lukeoldenburg.g2d2.client.gfx;
 
 import com.lukeoldenburg.g2d2.client.Client;
 import com.lukeoldenburg.g2d2.client.InputHandler;
+import com.lukeoldenburg.g2d2.client.gfx.ui.Checkbox;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
-import com.lukeoldenburg.g2d2.client.gfx.ui.Text;
-import com.lukeoldenburg.g2d2.client.gfx.ui.UI;
-import com.lukeoldenburg.g2d2.client.gfx.ui.UIElement;
+import com.lukeoldenburg.g2d2.client.gfx.ui.*;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
 import com.lukeoldenburg.g2d2.server.level.Coordinate;
 import com.lukeoldenburg.g2d2.server.level.Level;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
-	private final UI ui = new UI();
+	private final UI ui;
 	private Thread renderThread;
 	private BufferedImage grassImage;
 	private BufferedImage waterImage;
@@ -62,61 +62,10 @@ public class GamePanel extends JPanel implements Runnable {
 			LOGGER.error("Failed to load tile images", e);
 		}
 
-		// DEBUG INFO
-		Container debugContainer = new Container("debug_container", ui, 0, 10, 10) {
-			@Override
-			public void refresh(Graphics2D g2) {
-				super.refresh(g2);
-				visible = Client.isDebugMode();
-			}
-		};
-		debugContainer.addChild(new Text("debug_text", debugContainer, 0, 0, 0) {
-			@Override
-			public void refresh(Graphics2D g2) {
-				super.refresh(g2);
-				setText("DEBUG INFO\n"
-						+ "Version: " + Client.VERSION + "\n"
-						+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
-						+ "Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
-						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
-						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
-						+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
-						+ "Level Size: " + Client.getLevel().getSize() + "\n"
-						+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
-						+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
-						+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
-						+ "Lower Bound: " + ScreenUtil.getLowerBound(Client.getMyself().getCoordinate()) + "\n"
-						+ "Player Point: " + ScreenUtil.getPlayerPoint(Client.getMyself().getCoordinate()) + "\n"
-						+ "Player Coordinate: " + Client.getMyself().getCoordinate() + "\n"
-						+ "Mouse Point: " + Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)) + "\n"
-						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
-			}
-		});
-		debugContainer.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0) {
-			@Override
-			public void refresh(Graphics2D g2) {
-				super.refresh(g2);
-				StringBuilder text = new StringBuilder("HOVERED ELEMENTS\n");
-				for (UIElement element : UI.getHoveredElements()) {
-					text.append("Element: ").append(element.getId()).append("\n");
-					if (parentElement != null)
-						text.append("Parent Element: ").append(element.getParentElement().getId()).append("\n");
-					else text.append("Parent Element: null\n");
-					text.append("Render Priority: ").append(element.getRenderPriority()).append("\n");
-					text.append("Point: java.awt.Point[x=").append(element.getX()).append(",y=").append(element.getY()).append("]\n");
-					text.append("Dimensions: ").append(element.getWidth(g2)).append("x").append(element.getHeight(g2)).append("\n");
-					StringBuilder children = new StringBuilder("Children: [");
-					for (UIElement child : element.getChildren()) {
-						children.append(child.getId()).append(", ");
-					}
-					children = new StringBuilder(children.substring(0, children.length() - 2));
-					if (!element.getChildren().isEmpty()) text.append(children).append("]\n\n");
-					else text.append("Children: []\n\n");
-				}
-				setText(text.toString());
-			}
-		});
-		ui.addChild(debugContainer);
+		// UI
+		ui = new UI();
+		initializeSettingsContainer();
+		initializeDebugContainer();
 
 		// PANEL
 		this.setBackground(Color.black);
@@ -196,6 +145,100 @@ public class GamePanel extends JPanel implements Runnable {
 	public void startRenderThread() {
 		renderThread = new Thread(this);
 		renderThread.start();
+	}
+
+	public void initializeSettingsContainer() {
+		Container settingsContainer = new Container("settings_container", ui, 0, 500, 400) {
+			@Override
+			public void draw(Graphics2D g2) {
+				g2.setColor(new Color(0, 0, 0, 160));
+				g2.fillRect(0, 0, ScreenUtil.width, ScreenUtil.height);
+				super.draw(g2);
+			}
+
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				visible = (boolean) Client.getStateInfo().get("settings_mode");
+			}
+		};
+		settingsContainer.lockWidth(400);
+		settingsContainer.lockHeight(200);
+		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsContainer, 0, 0, 0);
+		openGlRow.addChild(new Text("opengl_text", settingsContainer, 0, 0, 0, "OpenGL"));
+		openGlRow.addChild(new Checkbox("opengl_checkbox", settingsContainer, 0, 0, 0) {
+			@Override
+			public void refresh(Graphics2D g2) {
+				setChecked(Client.getConfig().get("opengl").getAsBoolean()); // should this be moved to onClick?
+			}
+
+			@Override
+			public void onClick(MouseEvent e) {
+				super.onClick(e);
+				Client.getConfig().addProperty("opengl", isChecked());
+			}
+		});
+		settingsContainer.addChild(openGlRow);
+		ui.addChild(settingsContainer);
+	}
+
+	public void initializeDebugContainer() {
+		Container debugContainer = new Container("debug_container", ui, 1, 10, 10) {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				visible = (boolean) Client.getStateInfo().get("debug_mode");
+			}
+		};
+		VerticalStack debugStack = new VerticalStack("debug_vs", debugContainer, 0, 0, 0);
+		debugStack.addChild(new Text("debug_text", debugContainer, 0, 0, 0, "") {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				setText("DEBUG INFO\n"
+						+ "Version: " + Client.VERSION + "\n"
+						+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
+						+ "Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
+						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
+						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
+						+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
+						+ "Level Size: " + Client.getLevel().getSize() + "\n"
+						+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Right Bound: " + ScreenUtil.getRightBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Upper Bound: " + ScreenUtil.getUpperBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Lower Bound: " + ScreenUtil.getLowerBound(Client.getMyself().getCoordinate()) + "\n"
+						+ "Player Point: " + ScreenUtil.getPlayerPoint(Client.getMyself().getCoordinate()) + "\n"
+						+ "Player Coordinate: " + Client.getMyself().getCoordinate() + "\n"
+						+ "Mouse Point: " + Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)) + "\n"
+						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
+			}
+		});
+		debugStack.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0, "") {
+			@Override
+			public void refresh(Graphics2D g2) {
+				super.refresh(g2);
+				StringBuilder text = new StringBuilder("HOVERED ELEMENTS\n");
+				for (UIElement element : UI.getHoveredElements()) {
+					text.append("Element: ").append(element.getId()).append("\n");
+					if (parentElement != null)
+						text.append("Parent Element: ").append(element.getParentElement().getId()).append("\n");
+					else text.append("Parent Element: null\n");
+					text.append("Render Priority: ").append(element.getRenderPriority()).append("\n");
+					text.append("Point: java.awt.Point[x=").append(element.getX()).append(",y=").append(element.getY()).append("]\n");
+					text.append("Dimensions: ").append(element.getWidth(g2)).append("x").append(element.getHeight(g2)).append("\n");
+					StringBuilder children = new StringBuilder("Children: [");
+					for (UIElement child : element.getChildren()) {
+						children.append(child.getId()).append(", ");
+					}
+					children = new StringBuilder(children.substring(0, children.length() - 2));
+					if (!element.getChildren().isEmpty()) text.append(children).append("]\n\n");
+					else text.append("Children: []\n\n");
+				}
+				setText(text.toString());
+			}
+		});
+		debugContainer.addChild(debugStack);
+		ui.addChild(debugContainer);
 	}
 
 	public UI getUi() {

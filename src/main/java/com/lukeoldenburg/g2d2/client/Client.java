@@ -16,18 +16,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Client {
 	public static final String VERSION = "1.0.0-alpha.1";
 	private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 	private static final List<Entity> entities = new ArrayList<>();
+	private static final Map<String, Object> stateInfo = new HashMap<>();
 	private static JsonObject config;
 	private static JFrame gameFrame;
 	private static GamePanel gamePanel;
-	private static boolean debugMode = true;
 	private static ClientSocket socket;
 	private static Level level;
 	private static int myselfIndex;
@@ -37,10 +36,8 @@ public class Client {
 		LOGGER.info("Loading...");
 		registerHooks();
 		loadConfig();
-
-		if (config.get("opengl").getAsBoolean()) System.setProperty("sun.java2d.opengl", "True");
-		else System.setProperty("sun.java2d.opengl", "False");
-
+		initializeState();
+		setOpengl();
 		setLookAndFeel();
 		gameFrame = new JFrame();
 		gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +55,7 @@ public class Client {
 		entities.add(new Player(new Coordinate(99, 99), 100, config.get("steamId").getAsLong(), config.get("name").getAsString()));
 		for (Entity entity : entities) {
 			if (!(entity instanceof Player)) continue;
-			generateNameTag((Player) entity);
+			initializeNameTag((Player) entity);
 		}
 
 		setMyselfIndex();
@@ -113,12 +110,22 @@ public class Client {
 		if (!keybinds.has("K68")) keybinds.addProperty("K68", "right");
 	}
 
+	private static void initializeState() {
+		stateInfo.put("ui_visible", true);
+		stateInfo.put("debug_mode", true);
+		stateInfo.put("settings_mode", false);
+	}
+
+	public static void setOpengl() {
+		if (config.get("opengl").getAsBoolean()) System.setProperty("sun.java2d.opengl", "True");
+		else System.setProperty("sun.java2d.opengl", "False");
+	}
+
 	public static void fireAction(String action, Point point) {
 		switch (action) {
-			case "ui" -> gamePanel.getUi().setVisible(!gamePanel.getUi().isVisible());
-			case "debug" -> debugMode = !debugMode;
-			case "settings" -> {
-			}
+			case "ui" -> stateInfo.put("ui_visible", !(boolean) stateInfo.get("ui_visible"));
+			case "debug" -> stateInfo.put("debug_mode", !(boolean) stateInfo.get("debug_mode"));
+			case "settings" -> stateInfo.put("settings_mode", !(boolean) stateInfo.get("settings_mode"));
 			case "inventory" -> {
 			}
 			case "interact" -> {
@@ -136,8 +143,8 @@ public class Client {
 		}
 	}
 
-	private static void generateNameTag(Player player) {
-		Text nameTag = new Text("nametag_" + player.getName(), getGamePanel().getUi(), 1, 0, 0) {
+	private static void initializeNameTag(Player player) {
+		Text nameTag = new Text("nametag_" + player.getName(), getGamePanel().getUi(), 2, 0, 0, player.getName()) {
 			final long steamId = player.getSteamId();
 
 			@Override
@@ -151,7 +158,7 @@ public class Client {
 					if (!(((Player) entity).getSteamId() == steamId)) continue;
 
 					x = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getX();
-					y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 4;
+					y = (int) ScreenUtil.coordinateToPoint(coordinate, Client.getMyself().getCoordinate()).getY() - ScreenUtil.scaledTileSize / 3;
 					x += ScreenUtil.scaledTileSize / 2 - g2.getFontMetrics().stringWidth(((Player) entity).getName()) / 2;
 
 					if (!(entity == Client.getMyself())) continue;
@@ -160,7 +167,6 @@ public class Client {
 				}
 			}
 		};
-		nameTag.setText(player.getName());
 		nameTag.setFont(GamePanel.font.deriveFont(40f));
 		gamePanel.getUi().addChild(nameTag);
 	}
@@ -178,6 +184,10 @@ public class Client {
 		return entities;
 	}
 
+	public static Map<String, Object> getStateInfo() {
+		return stateInfo;
+	}
+
 	public static JsonObject getConfig() {
 		return config;
 	}
@@ -188,10 +198,6 @@ public class Client {
 
 	public static GamePanel getGamePanel() {
 		return gamePanel;
-	}
-
-	public static boolean isDebugMode() {
-		return debugMode;
 	}
 
 	public static Level getLevel() {

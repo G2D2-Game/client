@@ -6,18 +6,18 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 public class Text extends UIElement {
-	private String text = "";
+	private String text;
 	private Font font = GamePanel.font.deriveFont(30f);
 	private Color color = Color.white;
 	private boolean underlined = false;
 
-	public Text(String id, UIElement parentElement, int renderPriority, int x, int y) {
+	public Text(String id, UIElement parentElement, int renderPriority, int x, int y, String text) {
 		super(id, parentElement, renderPriority, x, y);
+		this.text = text;
 	}
 
 	@Override
 	public void draw(Graphics2D g2) {
-		super.draw(g2);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		g2.setFont(font);
 		g2.setColor(color);
@@ -25,7 +25,7 @@ public class Text extends UIElement {
 		int tempY = y;
 		for (String line : text.split("\n")) {
 			Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(line, g2);
-			g2.drawString(line, tempX, (int) (tempY + stringBounds.getHeight() / 2));
+			g2.drawString(line, tempX, (int) (tempY + stringBounds.getHeight() / 2 + 3));
 			if (underlined) {
 				g2.setStroke(new BasicStroke(2));
 				g2.drawLine(tempX, (int) (tempY + stringBounds.getHeight() / 2 + 3), (int) (tempX + stringBounds.getWidth()), (int) (tempY + stringBounds.getHeight() / 2 + 3));
@@ -35,6 +35,7 @@ public class Text extends UIElement {
 		}
 
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		super.draw(g2);
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class Text extends UIElement {
 		for (String line : text.split("\n"))
 			this.height += (int) g2.getFontMetrics().getStringBounds(line, g2).getHeight();
 
-		return height;
+		return height - 10;
 	}
 
 	public String getText() {

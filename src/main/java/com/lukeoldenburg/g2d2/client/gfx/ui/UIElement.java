@@ -29,12 +29,15 @@ public class UIElement {
 	}
 
 	public void draw(Graphics2D g2) {
-		g2.setStroke(new BasicStroke(1));
-		if (Client.isDebugMode()) {
-			g2.drawLine(x, y, x + width, y);
-			g2.drawLine(x, y, x, y + height);
-			g2.drawLine(x, y + height, x + width, y + height);
-			g2.drawLine(x + width, y, x + width, y + height);
+		for (UIElement uiElement : children)
+			if (uiElement.visible) uiElement.draw(g2);
+
+		if ((boolean) Client.getStateInfo().get("debug_mode")) {
+			g2.setStroke(new BasicStroke(1));
+			g2.drawLine(x, y, x + getWidth(g2), y);
+			g2.drawLine(x, y, x, y + getHeight(g2));
+			g2.drawLine(x, y + getHeight(g2), x + getWidth(g2), y + getHeight(g2));
+			g2.drawLine(x + getWidth(g2), y, x + getWidth(g2), y + getHeight(g2));
 		}
 	}
 
