@@ -23,6 +23,8 @@ import java.util.Objects;
 public class GamePanel extends JPanel implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GamePanel.class);
 	public static Font font = null;
+	private int frames = 0;
+	private int lastFrames = 0;
 
 	static {
 		try {
@@ -79,6 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		frames++;
 		Level level = Client.getLevel();
 		if (level == null || !level.isLoaded()) return;
 		super.paintComponent(g);
@@ -138,9 +141,14 @@ public class GamePanel extends JPanel implements Runnable {
 				delta--;
 			}
 
-			if (timer >= 1000000000) timer = 0;
+			if (timer >= 1000000000) {
+				lastFrames = frames;
+				frames = 0;
+				timer = 0;
+			}
 		}
 	}
+
 
 	public void startRenderThread() {
 		renderThread = new Thread(this);
@@ -200,7 +208,7 @@ public class GamePanel extends JPanel implements Runnable {
 						+ "Steam ID: " + Client.getConfig().get("steamId").getAsLong() + "\n"
 						+ "Resolution: " + Client.getConfig().get("resolution").getAsString() + "\n"
 						+ "OpenGL: " + Client.getConfig().get("opengl").getAsBoolean() + "\n"
-						+ "FPS: " + Client.getConfig().get("maxFps").getAsInt() + "\n"
+						+ "FPS: " + lastFrames + "\n"
 						+ "Level Seed: " + Client.getLevel().getSeed() + "\n"
 						+ "Level Size: " + Client.getLevel().getSize() + "\n"
 						+ "Left Bound: " + ScreenUtil.getLeftBound(Client.getMyself().getCoordinate()) + "\n"
