@@ -3,10 +3,10 @@ package com.lukeoldenburg.g2d2.client.gfx.ui;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class Checkbox extends UIElement {
+public class CheckBox extends UIElement {
 	private boolean checked = false;
 
-	public Checkbox(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
+	public CheckBox(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
 		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
 		width = 20;
 		height = 20;

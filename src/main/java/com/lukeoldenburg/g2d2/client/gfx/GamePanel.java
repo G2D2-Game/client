@@ -2,7 +2,7 @@ package com.lukeoldenburg.g2d2.client.gfx;
 
 import com.lukeoldenburg.g2d2.client.Client;
 import com.lukeoldenburg.g2d2.client.InputHandler;
-import com.lukeoldenburg.g2d2.client.gfx.ui.Checkbox;
+import com.lukeoldenburg.g2d2.client.gfx.ui.CheckBox;
 import com.lukeoldenburg.g2d2.client.gfx.ui.Container;
 import com.lukeoldenburg.g2d2.client.gfx.ui.*;
 import com.lukeoldenburg.g2d2.server.entity.Entity;
@@ -166,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
 		settingsContainer.lockHeight(200);
 		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
 		openGlRow.addChild(new Text("opengl_text", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "OpenGL"));
-		openGlRow.addChild(new Checkbox("opengl_checkbox", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
+		openGlRow.addChild(new CheckBox("opengl_checkbox", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				setChecked(Client.getConfig().get("opengl").getAsBoolean()); // should this be moved to onClick?
