@@ -144,7 +144,7 @@ public class Client {
 	}
 
 	private static void initializeNameTag(Player player) {
-		Text nameTag = new Text("nametag_" + player.getName(), getGamePanel().getUi(), 2, 0, 0, player.getName()) {
+		Text nameTag = new Text("nametag_" + player.getName(), getGamePanel().getUi(), 2, null, null, 0, 0, player.getName()) {
 			final long steamId = player.getSteamId();
 
 			@Override

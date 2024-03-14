@@ -148,7 +148,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void initializeSettingsContainer() {
-		Container settingsContainer = new Container("settings_container", ui, 0, 500, 400) {
+		Container settingsContainer = new Container("settings_container", ui, 0, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0) {
 			@Override
 			public void draw(Graphics2D g2) {
 				g2.setColor(new Color(0, 0, 0, 160));
@@ -164,9 +164,9 @@ public class GamePanel extends JPanel implements Runnable {
 		};
 		settingsContainer.lockWidth(400);
 		settingsContainer.lockHeight(200);
-		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsContainer, 0, 0, 0);
-		openGlRow.addChild(new Text("opengl_text", settingsContainer, 0, 0, 0, "OpenGL"));
-		openGlRow.addChild(new Checkbox("opengl_checkbox", settingsContainer, 0, 0, 0) {
+		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
+		openGlRow.addChild(new Text("opengl_text", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "OpenGL"));
+		openGlRow.addChild(new Checkbox("opengl_checkbox", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				setChecked(Client.getConfig().get("opengl").getAsBoolean()); // should this be moved to onClick?
@@ -183,15 +183,15 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void initializeDebugContainer() {
-		Container debugContainer = new Container("debug_container", ui, 1, 10, 10) {
+		Container debugContainer = new Container("debug_container", ui, 1, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
 				visible = (boolean) Client.getStateInfo().get("debug_mode");
 			}
 		};
-		VerticalStack debugStack = new VerticalStack("debug_vs", debugContainer, 0, 0, 0);
-		debugStack.addChild(new Text("debug_text", debugContainer, 0, 0, 0, "") {
+		VerticalStack debugStack = new VerticalStack("debug_vs", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
+		debugStack.addChild(new Text("debug_text", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0, "") {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
@@ -213,7 +213,7 @@ public class GamePanel extends JPanel implements Runnable {
 						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
 			}
 		});
-		debugStack.addChild(new Text("ui_info_text", debugContainer, 0, 0, 0, "") {
+		debugStack.addChild(new Text("ui_info_text", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0, "") {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);

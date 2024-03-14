@@ -3,20 +3,23 @@ package com.lukeoldenburg.g2d2.client.gfx.ui;
 import java.awt.*;
 
 public class VerticalStack extends UIElement {
-	public VerticalStack(String id, UIElement parentElement, int renderPriority, int x, int y) {
-		super(id, parentElement, renderPriority, x, y);
+	public VerticalStack(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
+		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
 	}
 
 	@Override
 	public void refresh(Graphics2D g2) {
 		super.refresh(g2);
-		children.sort((a, b) -> Integer.compare(b.renderPriority, a.renderPriority));
-
-		int currentX = x;
 		int currentY = y;
 		for (UIElement uiElement : children) {
 			if (!uiElement.visible) continue;
-			uiElement.x = currentX;
+			if (uiElement.getHorizontalAlignment() != null) {
+				switch (uiElement.getHorizontalAlignment()) {
+					case LEFT -> uiElement.x = x;
+					case CENTER -> uiElement.x = x + (width / 2) - (uiElement.getWidth(g2) / 2);
+					case RIGHT -> uiElement.x = x + width - uiElement.getWidth(g2);
+				}
+			}
 			uiElement.y = currentY;
 			currentY += uiElement.getHeight(g2) + 10;
 		}

@@ -7,12 +7,13 @@ public class Container extends UIElement {
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
 	private boolean lockedWidth, lockedHeight;
 
-	public Container(String id, UIElement parentElement, int renderPriority, int x, int y) {
-		super(id, parentElement, renderPriority, x, y);
+	public Container(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
+		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
 	}
 
 	@Override
 	public void draw(Graphics2D g2) {
+		if (!visible) return;
 		g2.setColor(BACKGROUND_COLOR);
 		g2.fillRoundRect(x, y, width + 1, height + 1, 35, 35);
 
@@ -26,40 +27,36 @@ public class Container extends UIElement {
 	@Override
 	public void refresh(Graphics2D g2) {
 		super.refresh(g2);
-		children.sort((a, b) -> Integer.compare(b.renderPriority, a.renderPriority));
-
-		int currentX = x + 20;
-		int currentY = y + 20;
-		for (UIElement uiElement : children) {
-			if (!uiElement.visible) continue;
-			uiElement.x = currentX;
-			uiElement.y = currentY;
-			currentY += uiElement.getHeight(g2) + 10;
+		UIElement child = children.get(0);
+		if (child.getVerticalAlignment() != null) {
+			switch (child.getVerticalAlignment()) {
+				case TOP -> child.y = y + 20;
+				case CENTER -> child.y = y + (height / 2) - (child.getHeight(g2) / 2);
+				case BOTTOM -> child.y = y + height - child.getHeight(g2) - 20;
+			}
 		}
-
-		getWidth(g2);
-		getHeight(g2);
+		if (child.getHorizontalAlignment() != null) {
+			switch (child.getHorizontalAlignment()) {
+				case LEFT -> child.x = x + 20;
+				case CENTER -> child.x = x + (width / 2) - (child.getWidth(g2) / 2);
+				case RIGHT -> child.x = x + width - child.getWidth(g2) - 20;
+			}
+		}
 	}
 
 	@Override
 	public int getWidth(Graphics2D g2) {
 		if (lockedWidth) return width;
-		width = 0;
-		for (UIElement uiElement : children)
-			if (uiElement.visible) width = Math.max(width, uiElement.getWidth(g2));
-
-		width += 40;
+		UIElement child = children.get(0);
+		if (child.visible) width = child.getWidth(g2) + 40;
 		return width;
 	}
 
 	@Override
 	public int getHeight(Graphics2D g2) {
 		if (lockedHeight) return height;
-		height = 0;
-		for (UIElement uiElement : children)
-			if (uiElement.visible) height += uiElement.getHeight(g2) + 10;
-
-		height += 30;
+		UIElement child = children.get(0);
+		if (child.visible) height = child.getHeight(g2) + 40;
 		return height;
 	}
 

@@ -29,5 +29,21 @@ public class UI extends UIElement {
 	public void refresh(Graphics2D g2) {
 		visible = (boolean) Client.getStateInfo().get("ui_visible");
 		super.refresh(g2);
+		for (UIElement uiElement : children) {
+			if (uiElement.getVerticalAlignment() != null) {
+				switch (uiElement.getVerticalAlignment()) {
+					case TOP -> uiElement.y = y + 20;
+					case CENTER -> uiElement.y = y + (height / 2) - (uiElement.getHeight(g2) / 2);
+					case BOTTOM -> uiElement.y = y + height - uiElement.getHeight(g2) - 20;
+				}
+			}
+			if (uiElement.getHorizontalAlignment() != null) {
+				switch (uiElement.getHorizontalAlignment()) {
+					case LEFT -> uiElement.x = x + 20;
+					case CENTER -> uiElement.x = x + (width / 2) - (uiElement.getWidth(g2) / 2);
+					case RIGHT -> uiElement.x = x + width - uiElement.getWidth(g2) - 20;
+				}
+			}
+		}
 	}
 }

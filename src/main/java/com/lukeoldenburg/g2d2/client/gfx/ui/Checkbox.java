@@ -6,8 +6,8 @@ import java.awt.event.MouseEvent;
 public class Checkbox extends UIElement {
 	private boolean checked = false;
 
-	public Checkbox(String id, UIElement parentElement, int renderPriority, int x, int y) {
-		super(id, parentElement, renderPriority, x, y);
+	public Checkbox(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
+		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
 		width = 20;
 		height = 20;
 	}

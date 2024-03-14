@@ -11,16 +11,20 @@ public class UIElement {
 	protected String id;
 	protected UIElement parentElement;
 	protected int renderPriority = 0;
+	protected VerticalAlignment verticalAlignment;
+	protected HorizontalAlignment horizontalAlignment;
 	protected int x = 0;
 	protected int y = 0;
 	protected int width = 0;
 	protected int height = 0;
 	protected boolean visible = true;
 
-	public UIElement(String id, UIElement parentElement, int renderPriority, int x, int y) {
+	public UIElement(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
 		this.id = id;
 		this.parentElement = parentElement;
 		this.renderPriority = renderPriority;
+		this.verticalAlignment = verticalAlignment;
+		this.horizontalAlignment = horizontalAlignment;
 		this.x = x;
 		this.y = y;
 	}
@@ -33,11 +37,9 @@ public class UIElement {
 			if (uiElement.visible) uiElement.draw(g2);
 
 		if ((boolean) Client.getStateInfo().get("debug_mode")) {
+			g2.setColor(Color.white);
 			g2.setStroke(new BasicStroke(1));
-			g2.drawLine(x, y, x + getWidth(g2), y);
-			g2.drawLine(x, y, x, y + getHeight(g2));
-			g2.drawLine(x, y + getHeight(g2), x + getWidth(g2), y + getHeight(g2));
-			g2.drawLine(x + getWidth(g2), y, x + getWidth(g2), y + getHeight(g2));
+			g2.drawRect(x, y, getWidth(g2), getHeight(g2));
 		}
 	}
 
@@ -86,6 +88,14 @@ public class UIElement {
 
 	public int getRenderPriority() {
 		return renderPriority;
+	}
+
+	public VerticalAlignment getVerticalAlignment() {
+		return verticalAlignment;
+	}
+
+	public HorizontalAlignment getHorizontalAlignment() {
+		return horizontalAlignment;
 	}
 
 	public int getX() {
