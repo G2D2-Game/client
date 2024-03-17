@@ -124,13 +124,13 @@ public class GamePanel extends JPanel implements Runnable {
 
 	@Override
 	public void run() {
-		double drawInterval = 1000000000 / Client.getConfig().get("maxFps").getAsFloat();
 		double delta = 0;
 		long lastTime = System.nanoTime();
 		long currentTime;
 		long timer = 0;
 
 		while (renderThread != null) {
+			double drawInterval = 1000000000 / Client.getConfig().get("maxFps").getAsFloat();
 			currentTime = System.nanoTime();
 			delta += (currentTime - lastTime) / drawInterval;
 			timer += (currentTime - lastTime);
@@ -172,21 +172,45 @@ public class GamePanel extends JPanel implements Runnable {
 		};
 		settingsContainer.lockWidth(400);
 		settingsContainer.lockHeight(200);
-		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
-		openGlRow.addChild(new Text("opengl_text", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "OpenGL"));
-		openGlRow.addChild(new CheckBox("opengl_checkbox", settingsContainer, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
-			@Override
-			public void refresh(Graphics2D g2) {
-				setChecked(Client.getConfig().get("opengl").getAsBoolean()); // should this be moved to onClick?
-			}
-
+		// TODO make text and inputs their own vertical stacks and then add to horizontal stack to fix alignment
+		// TODO improve ui element constructors
+		// TODO either add an init function to override or accept the starting value in the constructor
+		// TODO fix scopes
+		// TODO display slider value as text
+		// TODO add unlimited fps?
+		// TODO improve refresh rate code
+		VerticalStack settingsItems = new VerticalStack("settings_vs", settingsContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.CENTER, 0, 0);
+		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsItems, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
+		openGlRow.addChild(new Text("opengl_text", openGlRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "OpenGL"));
+		openGlRow.addChild(new CheckBox("opengl_checkbox", openGlRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
 			@Override
 			public void onClick(MouseEvent e) {
 				super.onClick(e);
 				Client.getConfig().addProperty("opengl", isChecked());
 			}
+
+			@Override
+			public void refresh(Graphics2D g2) {
+				setChecked(Client.getConfig().get("opengl").getAsBoolean());
+			}
 		});
-		settingsContainer.addChild(openGlRow);
+		settingsItems.addChild(openGlRow);
+		HorizontalStack maxFpsRow = new HorizontalStack("maxfps_hs", settingsItems, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
+		maxFpsRow.addChild(new Text("maxfps_text", maxFpsRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "Max FPS"));
+		maxFpsRow.addChild(new Slider("maxfps_slider", maxFpsRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, 30, 120) {
+			@Override
+			public void onClick(MouseEvent e) {
+				super.onClick(e);
+				Client.getConfig().addProperty("maxFps", value);
+			}
+
+			@Override
+			public void refresh(Graphics2D g2) {
+				value = Client.getConfig().get("maxFps").getAsInt();
+			}
+		});
+		settingsItems.addChild(maxFpsRow);
+		settingsContainer.addChild(settingsItems);
 		ui.addChild(settingsContainer);
 	}
 
