@@ -11,8 +11,8 @@ public class Text extends UIElement {
 	private Color color = Color.white;
 	private boolean underlined = false;
 
-	public Text(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y, String text) {
-		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
+	public Text(String id, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, String text) {
+		super(id, renderPriority, verticalAlignment, horizontalAlignment);
 		this.text = text;
 	}
 

@@ -19,14 +19,11 @@ public class UIElement {
 	protected int height = 0;
 	protected boolean visible = true;
 
-	public UIElement(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
+	public UIElement(String id, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment) {
 		this.id = id;
-		this.parentElement = parentElement;
 		this.renderPriority = renderPriority;
 		this.verticalAlignment = verticalAlignment;
 		this.horizontalAlignment = horizontalAlignment;
-		this.x = x;
-		this.y = y;
 	}
 
 	public UIElement() {
@@ -70,6 +67,7 @@ public class UIElement {
 	}
 
 	public void addChild(UIElement child) {
+		child.setParentElement(this);
 		children.add(child);
 		children.sort((a, b) -> Integer.compare(b.renderPriority, a.renderPriority));
 	}
@@ -84,6 +82,10 @@ public class UIElement {
 
 	public UIElement getParentElement() {
 		return parentElement;
+	}
+
+	public void setParentElement(UIElement parentElement) {
+		this.parentElement = parentElement;
 	}
 
 	public int getRenderPriority() {
@@ -102,8 +104,16 @@ public class UIElement {
 		return x;
 	}
 
+	public void setX(int x) {
+		this.x = x;
+	}
+
 	public int getY() {
 		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
 	}
 
 	public int getWidth(Graphics2D g2) {

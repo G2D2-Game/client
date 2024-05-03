@@ -3,8 +3,8 @@ package com.lukeoldenburg.g2d2.client.gfx.ui;
 import java.awt.*;
 
 public class VerticalStack extends UIElement {
-	public VerticalStack(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
-		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
+	public VerticalStack(String id, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment) {
+		super(id, renderPriority, verticalAlignment, horizontalAlignment);
 	}
 
 	@Override

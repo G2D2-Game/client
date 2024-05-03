@@ -7,8 +7,8 @@ public class Container extends UIElement {
 	private static final Color BORDER_COLOR = new Color(255, 255, 255);
 	private boolean lockedWidth, lockedHeight;
 
-	public Container(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y) {
-		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
+	public Container(String id, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment) {
+		super(id, renderPriority, verticalAlignment, horizontalAlignment);
 	}
 
 	@Override

@@ -8,8 +8,8 @@ public class Slider extends UIElement {
 	private int maxValue;
 	protected int value;
 
-	public Slider(String id, UIElement parentElement, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int x, int y, int minValue, int maxValue) {
-		super(id, parentElement, renderPriority, verticalAlignment, horizontalAlignment, x, y);
+	public Slider(String id, int renderPriority, VerticalAlignment verticalAlignment, HorizontalAlignment horizontalAlignment, int minValue, int maxValue) {
+		super(id, renderPriority, verticalAlignment, horizontalAlignment);
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		width = 100;

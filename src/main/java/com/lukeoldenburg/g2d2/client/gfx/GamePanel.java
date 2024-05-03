@@ -156,7 +156,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void initializeSettingsContainer() {
-		Container settingsContainer = new Container("settings_container", ui, 0, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0) {
+		Container settingsContainer = new Container("settings_container", 0, VerticalAlignment.CENTER, HorizontalAlignment.CENTER) {
 			@Override
 			public void draw(Graphics2D g2) {
 				g2.setColor(new Color(0, 0, 0, 160));
@@ -172,17 +172,13 @@ public class GamePanel extends JPanel implements Runnable {
 		};
 		settingsContainer.lockWidth(400);
 		settingsContainer.lockHeight(200);
-		// TODO make text and inputs their own vertical stacks and then add to horizontal stack to fix alignment
-		// TODO improve ui element constructors
-		// TODO either add an init function to override or accept the starting value in the constructor
-		// TODO fix scopes
+		// TODO fix alignment in settings panel
 		// TODO display slider value as text
-		// TODO add unlimited fps?
-		// TODO improve refresh rate code
-		VerticalStack settingsItems = new VerticalStack("settings_vs", settingsContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.CENTER, 0, 0);
-		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", settingsItems, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
-		openGlRow.addChild(new Text("opengl_text", openGlRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "OpenGL"));
-		openGlRow.addChild(new CheckBox("opengl_checkbox", openGlRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0) {
+		// TODO fix hovered elements size
+		VerticalStack settingsItems = new VerticalStack("settings_vs", 0, VerticalAlignment.TOP, HorizontalAlignment.CENTER);
+		HorizontalStack openGlRow = new HorizontalStack("opengl_hs", 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT);
+		openGlRow.addChild(new Text("opengl_text", 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, "OpenGL"));
+		openGlRow.addChild(new CheckBox("opengl_checkbox", 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT) {
 			@Override
 			public void onClick(MouseEvent e) {
 				super.onClick(e);
@@ -195,9 +191,9 @@ public class GamePanel extends JPanel implements Runnable {
 			}
 		});
 		settingsItems.addChild(openGlRow);
-		HorizontalStack maxFpsRow = new HorizontalStack("maxfps_hs", settingsItems, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
-		maxFpsRow.addChild(new Text("maxfps_text", maxFpsRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, "Max FPS"));
-		maxFpsRow.addChild(new Slider("maxfps_slider", maxFpsRow, 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 0, 0, 30, 120) {
+		HorizontalStack maxFpsRow = new HorizontalStack("maxfps_hs", 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT);
+		maxFpsRow.addChild(new Text("maxfps_text", 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, "Max FPS"));
+		maxFpsRow.addChild(new Slider("maxfps_slider", 0, VerticalAlignment.CENTER, HorizontalAlignment.LEFT, 30, 120) {
 			@Override
 			public void onClick(MouseEvent e) {
 				super.onClick(e);
@@ -215,15 +211,15 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	public void initializeDebugContainer() {
-		Container debugContainer = new Container("debug_container", ui, 1, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0) {
+		Container debugContainer = new Container("debug_container", 1, VerticalAlignment.TOP, HorizontalAlignment.LEFT) {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
 				visible = (boolean) Client.getStateInfo().get("debug_mode");
 			}
 		};
-		VerticalStack debugStack = new VerticalStack("debug_vs", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0);
-		debugStack.addChild(new Text("debug_text", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0, "") {
+		VerticalStack debugStack = new VerticalStack("debug_vs", 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT);
+		debugStack.addChild(new Text("debug_text", 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, "") {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
@@ -245,7 +241,7 @@ public class GamePanel extends JPanel implements Runnable {
 						+ "Mouse Coordinate: " + ScreenUtil.pointToCoordinate(Objects.requireNonNullElse(Client.getGameFrame().getMousePosition(), new Point(0, 0)), Client.getMyself().getCoordinate()));
 			}
 		});
-		debugStack.addChild(new Text("ui_info_text", debugContainer, 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, 0, 0, "") {
+		debugStack.addChild(new Text("ui_info_text", 0, VerticalAlignment.TOP, HorizontalAlignment.LEFT, "") {
 			@Override
 			public void refresh(Graphics2D g2) {
 				super.refresh(g2);
